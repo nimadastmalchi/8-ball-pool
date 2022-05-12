@@ -52,11 +52,60 @@ export class Ball {
 
 export class Game {
     constructor() {
-        this.balls = Array(4);
+        let space = 0.1;
+        this.balls = [];
+        this.balls = this.balls.concat(this.makeOddLayer(0, 1));
+        this.balls = this.balls.concat(this.makeEvenLayer(2, 2));
+        this.balls = this.balls.concat(this.makeOddLayer(4, 3));
+        this.balls = this.balls.concat(this.makeEvenLayer(6, 4));
+        this.balls = this.balls.concat(this.makeOddLayer(8, 5));
+        this.balls = this.balls.concat(this.makeEvenLayer(10, 6));
+
+        this.balls.push(new Ball(vec3(0, -20, 0), vec3(0, 50, 0), hex_color("#FFFFFF"), false));
+        /*
         this.balls[0] = new Ball(vec3(0, 0, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
         this.balls[1] = new Ball(vec3(1.1 * BALL_RADIUS, 2 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
         this.balls[2] = new Ball(vec3(-1.1 * BALL_RADIUS, 2 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[3] = new Ball(vec3(0, -10, 0), vec3(0, 10, 0), hex_color("#FFFFFF"), false);
+        this.balls[3] = new Ball(vec3(0, 4 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
+        this.balls[4] = new Ball(vec3(-2.2 * BALL_RADIUS, 4 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
+        this.balls[5] = new Ball(vec3(2.2 * BALL_RADIUS, 4 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
+        this.balls[6] = new Ball(vec3(-2.2 * BALL_RADIUS, 6 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
+        this.balls[7] = new Ball(vec3(-4.4 * BALL_RADIUS, 6 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
+        this.balls[8] = new Ball(vec3(0, -40, 0), vec3(0, 100, 0), hex_color("#FFFFFF"), false);
+        */
+    }
+
+    makeOddLayer(y, n) {
+        let balls = [];
+        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+        --n;
+
+        let num_on_left = n / 2;
+        let i = 1;
+        while (num_on_left > 0) {
+            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + 0.1) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            --num_on_left;
+        }
+
+        let num_on_right = n / 2;
+        i = 1;
+        while (num_on_right > 0) {
+            balls.push(new Ball(vec3((2 * BALL_RADIUS + 0.1) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            --num_on_right;
+        }
+
+        return balls;
+    }
+
+    makeEvenLayer(y, n) {
+        let balls = [];
+        let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n/2.0 - 1) * 0.1 + 0.05;
+        while (n > 0) {
+            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            x -= 2 * BALL_RADIUS + 0.1;
+            --n;
+        }
+        return balls;
     }
 
     update(dt) {

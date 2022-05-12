@@ -10,7 +10,7 @@ export class Pool extends Scene {
     constructor() {
         super();
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 0, 40), vec3(0, 0, 0), vec3(0, 1, 1));
 
         this.game = new Game();
     }
