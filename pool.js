@@ -35,7 +35,7 @@ export class Pool extends Scene {
         const light_position = vec4(0, 0, 100, 1);
         program_state.lights = [new Light(light_position, hex_color("#FFFFFF"), 1000000)];
 
-        if (t > 1) {
+        if (t > 2.5) {
             this.game.update(dt);
         }
         this.game.draw(context, program_state);

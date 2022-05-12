@@ -9,8 +9,8 @@ const BALL_INIT_SPACE = 0.2;
 const BALL_SHAPE = new defs.Subdivision_Sphere(8);
 const BALL_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#FFFFFF") });
 
-const COLLISION_VEL_LOSS = 1;
-const FRICTION_VEL_LOSS = 0.9975;
+const COLLISION_VEL_LOSS = 0.95;
+const FRICTION_VEL_LOSS = 0.9925;
 
 const TABLE_MIN_X = -20;
 const TABLE_MAX_X = 20;
@@ -56,10 +56,10 @@ export class Ball {
 
         // Ensure ball is within bounds:
         if (this.loc[0] < TABLE_MIN_X + BALL_RADIUS || this.loc[0] > TABLE_MAX_X - BALL_RADIUS) {
-            this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]);
+            this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
             this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
         } else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
-            this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]);
+            this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
             this.loc[1] = this.loc[1] < TABLE_MIN_Y + BALL_RADIUS ? TABLE_MIN_Y + BALL_RADIUS : TABLE_MAX_Y - BALL_RADIUS;
         }
     }

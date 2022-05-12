@@ -3,10 +3,10 @@
  * This file defines a lot of panels that can be placed on websites to create interactive graphics programs that use tiny-graphics.js.
  */
 
-import {tiny} from './tiny-graphics.js';
+import { tiny } from './tiny-graphics.js';
 
 // Pull these names into this module's scope for convenience.
-const {color, Scene} = tiny;
+const { color, Scene } = tiny;
 
 export const widgets = {};
 
@@ -420,7 +420,7 @@ const Editor_Widget = widgets.Editor_Widget =
             return fetch(url,
                 {
                     body: body, method: body === undefined ? 'GET' : 'POST',
-                    headers: {'content-type': 'application/json'}
+                    headers: { 'content-type': 'application/json' }
                 }).then(response => {
                 if (response.ok) return Promise.resolve(response.json())
                 else return Promise.reject(response.status)
@@ -461,7 +461,7 @@ const Text_Widget = widgets.Text_Widget =
             if (document.styleSheets.length == 0) document.head.appendChild(document.createElement("style"));
             for (const r of rules) document.styleSheets[document.styleSheets.length - 1].insertRule(r, 0)
 
-            Object.assign(this, {element, scenes, webgl_manager});
+            Object.assign(this, { element, scenes, webgl_manager });
             this.render();
         }
 

@@ -59,7 +59,7 @@ export const tiny = {};
  * **Vector** stores vectors of floating point numbers.  Puts vector math into JavaScript.
  * @Note  Vectors should be created with of() due to wierdness with the TypedArray spec.
  * @Tip Assign Vectors with .copy() to avoid referring two variables to the same Vector object.
- * @type {tiny.Vector}
+ * @type { tiny.Vector }
  */
 const Vector = tiny.Vector =
     class Vector extends Float32Array {
@@ -796,7 +796,7 @@ const Vertex_Buffer = tiny.Vertex_Buffer =
             // subsets of them as needed (if only some fields of your shape have changed).
 
             // Define what this object should store in each new WebGL Context:
-            const initial_gpu_representation = {webGL_buffer_pointers: {}};
+            const initial_gpu_representation = { webGL_buffer_pointers: {} };
             // Our object might need to register to multiple GPU contexts in the case of
             // multiple drawing areas.  If this is a new GPU context for this object,
             // copy the object to the GPU.  Otherwise, this object already has been
@@ -968,7 +968,7 @@ const Light = tiny.Light =
         // For spotlights, a light also needs a "size" factor for how quickly the brightness
         // should attenuate (reduce) as distance from the spotlight increases.
         constructor(position, color, size) {
-            Object.assign(this, {position, color, attenuation: 1 / size});
+            Object.assign(this, { position, color, attenuation: 1 / size });
         }
     }
 
@@ -990,7 +990,7 @@ const Graphics_Addresses = tiny.Graphics_Addresses =
 
             this.shader_attributes = {};
             // Assume per-vertex attributes will each be a set of 1 to 4 floats:
-            const type_to_size_mapping = {0x1406: 1, 0x8B50: 2, 0x8B51: 3, 0x8B52: 4};
+            const type_to_size_mapping = { 0x1406: 1, 0x8B50: 2, 0x8B51: 3, 0x8B52: 4 };
             const numAttribs = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
             for (let i = 0; i < numAttribs; i++) {
                 // https://github.com/greggman/twgl.js/blob/master/dist/twgl-full.js for another example:
@@ -1034,7 +1034,7 @@ const Container = tiny.Container =
             // Otherwise we'll try to guess the key to override by type:
             const matching_keys_by_type = Object.entries(this).filter(([key, value]) => replacement instanceof value.constructor);
             if (!matching_keys_by_type[0]) throw "Container: Can't figure out which value you're trying to replace; nothing matched by type.";
-            return Object.assign(target, {[matching_keys_by_type[0][0]]: replacement});
+            return Object.assign(target, { [matching_keys_by_type[0][0]]: replacement });
         }
     }
 
@@ -1047,7 +1047,7 @@ const Material = tiny.Material =
         // command), as well as a collection of any options wanted by the shader.
         constructor(shader, options) {
             super();
-            Object.assign(this, {shader}, options);
+            Object.assign(this, { shader }, options);
         }
     }
 
@@ -1199,7 +1199,7 @@ const Texture = tiny.Texture =
         // optionally generating mip maps of it and storing them there too.
         constructor(filename, min_filter = "LINEAR_MIPMAP_LINEAR") {
             super();
-            Object.assign(this, {filename, min_filter});
+            Object.assign(this, { filename, min_filter });
             // Create a new HTML Image object:
             this.image = new Image();
             this.image.onload = () => this.ready = true;
@@ -1212,7 +1212,7 @@ const Texture = tiny.Texture =
             // texture image onto one of your GPU contexts for its first time.
 
             // Define what this object should store in each new WebGL Context:
-            const initial_gpu_representation = {texture_buffer_pointer: undefined};
+            const initial_gpu_representation = { texture_buffer_pointer: undefined };
             // Our object might need to register to multiple GPU contexts in the case of
             // multiple drawing areas.  If this is a new GPU context for this object,
             // copy the object to the GPU.  Otherwise, this object already has been
@@ -1264,7 +1264,7 @@ const Program_State = tiny.Program_State =
         constructor(camera_transform = Mat4.identity(), projection_transform = Mat4.identity()) {
             super();
             this.set_camera(camera_transform);
-            const defaults = {projection_transform, animate: true, animation_time: 0, animation_delta_time: 0};
+            const defaults = { projection_transform, animate: true, animation_time: 0, animation_delta_time: 0 };
             Object.assign(this, defaults);
         }
 
@@ -1274,7 +1274,7 @@ const Program_State = tiny.Program_State =
             // often and matrix inversion is too slow to recompute needlessly.
             // Note that setting a camera matrix traditionally means storing the inverted version,
             // so that's the one this function expects to receive; it automatically sets the other.
-            Object.assign(this, {camera_transform: Mat4.inverse(matrix), camera_inverse: matrix})
+            Object.assign(this, { camera_transform: Mat4.inverse(matrix), camera_inverse: matrix })
         }
     }
 
@@ -1330,8 +1330,8 @@ const Webgl_Manager = tiny.Webgl_Manager =
             const [width, height] = dimensions;
             this.canvas.style["width"] = width + "px";
             this.canvas.style["height"] = height + "px";
-            Object.assign(this, {width, height});
-            Object.assign(this.canvas, {width, height});
+            Object.assign(this, { width, height });
+            Object.assign(this.canvas, { width, height });
             // Build the canvas's matrix for converting -1 to 1 ranged coords (NCDS) into its own pixel coords:
             this.context.viewport(0, 0, width, height);
         }
@@ -1421,8 +1421,8 @@ const Scene = tiny.Scene =
             button.textContent = "(" + key_name + ") " + description;
             button.addEventListener("mousedown", press);
             button.addEventListener("mouseup", release);
-            button.addEventListener("touchstart", press, {passive: true});
-            button.addEventListener("touchend", release, {passive: true});
+            button.addEventListener("touchstart", press, { passive: true });
+            button.addEventListener("touchend", release, { passive: true });
             if (!shortcut_combination) return;
             this.key_controls.add(shortcut_combination, press, release);
         }
