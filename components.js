@@ -5,11 +5,17 @@ const {
 } = tiny;
 
 const BALL_RADIUS = 1;
-const BALL_SHAPE = new defs.Subdivision_Sphere(4);
-const BALL_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 1, diffusivity: .6, color: hex_color("#FFFFFF") });
+const BALL_INIT_SPACE = 0.2;
+const BALL_SHAPE = new defs.Subdivision_Sphere(8);
+const BALL_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#FFFFFF") });
 
-const COLLISION_VEL_LOSS = 0.9;
-const FRICTION_VEL_LOSS = 0.99;
+const COLLISION_VEL_LOSS = 1;
+const FRICTION_VEL_LOSS = 0.9975;
+
+const TABLE_MIN_X = -20;
+const TABLE_MAX_X = 20;
+const TABLE_MIN_Y = -40;
+const TABLE_MAX_Y = 40;
 
 export class Ball {
     constructor(init_loc, init_vel, color, solid) {
@@ -42,7 +48,20 @@ export class Ball {
         this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
         this.set_vel(this.get_vel().times(FRICTION_VEL_LOSS));
 
+        if (this.vel.norm() < 0.25) {
+            this.vel = vec3(0, 0, 0);
+        }
+
+        // See if ball goes in hole:
+
         // Ensure ball is within bounds:
+        if (this.loc[0] < TABLE_MIN_X + BALL_RADIUS || this.loc[0] > TABLE_MAX_X - BALL_RADIUS) {
+            this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]);
+            this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
+        } else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
+            this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]);
+            this.loc[1] = this.loc[1] < TABLE_MIN_Y + BALL_RADIUS ? TABLE_MIN_Y + BALL_RADIUS : TABLE_MAX_Y - BALL_RADIUS;
+        }
     }
 
     draw(context, program_state) {
@@ -59,20 +78,8 @@ export class Game {
         this.balls = this.balls.concat(this.makeOddLayer(4, 3));
         this.balls = this.balls.concat(this.makeEvenLayer(6, 4));
         this.balls = this.balls.concat(this.makeOddLayer(8, 5));
-        this.balls = this.balls.concat(this.makeEvenLayer(10, 6));
 
-        this.balls.push(new Ball(vec3(0, -20, 0), vec3(0, 50, 0), hex_color("#FFFFFF"), false));
-        /*
-        this.balls[0] = new Ball(vec3(0, 0, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[1] = new Ball(vec3(1.1 * BALL_RADIUS, 2 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[2] = new Ball(vec3(-1.1 * BALL_RADIUS, 2 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[3] = new Ball(vec3(0, 4 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[4] = new Ball(vec3(-2.2 * BALL_RADIUS, 4 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[5] = new Ball(vec3(2.2 * BALL_RADIUS, 4 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[6] = new Ball(vec3(-2.2 * BALL_RADIUS, 6 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[7] = new Ball(vec3(-4.4 * BALL_RADIUS, 6 * BALL_RADIUS, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
-        this.balls[8] = new Ball(vec3(0, -40, 0), vec3(0, 100, 0), hex_color("#FFFFFF"), false);
-        */
+        this.balls.push(new Ball(vec3(0, -19, 0), vec3(0, 100, 0), hex_color("#FF0000"), false));
     }
 
     makeOddLayer(y, n) {
@@ -83,14 +90,14 @@ export class Game {
         let num_on_left = n / 2;
         let i = 1;
         while (num_on_left > 0) {
-            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + 0.1) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
             --num_on_left;
         }
 
         let num_on_right = n / 2;
         i = 1;
         while (num_on_right > 0) {
-            balls.push(new Ball(vec3((2 * BALL_RADIUS + 0.1) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
             --num_on_right;
         }
 
@@ -99,23 +106,23 @@ export class Game {
 
     makeEvenLayer(y, n) {
         let balls = [];
-        let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n/2.0 - 1) * 0.1 + 0.05;
+        let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n / 2.0 - 1) * BALL_INIT_SPACE + BALL_INIT_SPACE / 2.0;
         while (n > 0) {
             balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
-            x -= 2 * BALL_RADIUS + 0.1;
+            x -= 2 * BALL_RADIUS + BALL_INIT_SPACE;
             --n;
         }
         return balls;
     }
 
     update(dt) {
-        this.collision_check(dt);
+        this.collision_check();
         for (let i = 0; i < this.balls.length; ++i) {
             this.balls[i].update_loc(dt);
         }
     }
 
-    collision_check(dt) {
+    collision_check() {
         for (let i = 0; i < this.balls.length; ++i) {
             for (let j = i + 1; j < this.balls.length; ++j) {
                 let loc1 = this.balls[i].get_loc();
