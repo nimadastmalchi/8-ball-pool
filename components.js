@@ -83,12 +83,20 @@ export class Cue_Stick {
         // How model_transform will be calculated given the ball's location and angle:
         this.model_transform = Mat4.translation(init_loc[0], init_loc[1], init_loc[2])
                                    .times(Mat4.rotation(this.angle, 0, 0, 1))
-                                   .times(Mat4.translation(0, -(2.5 + STICK_LENGTH / 2 + this.power), 0))
+                                   .times(Mat4.translation(0, -(2 * BALL_RADIUS + STICK_LENGTH / 2 + this.power), 0))
                                    .times(Mat4.scale(STICK_WIDTH, STICK_LENGTH, STICK_WIDTH))
                                    .times(Mat4.rotation(Math.PI / 2, 1, 0, 0));
         this.loc = init_loc;
         this.vel = init_vel;
         this.released = false;
+    }
+
+    get_released() {
+        return this.released;
+    }
+
+    set_released(new_released) {
+        this.released = new_released;
     }
 
     update_loc() {
@@ -123,6 +131,7 @@ export class Game {
         this.stick = new Cue_Stick(vec3(0, -20, 0), vec3(0, 0, 0));
 
         this.turn = true;
+        this.stopped = true;
     }
 
     make_odd_layer(y, n) {
@@ -168,9 +177,16 @@ export class Game {
     }
 
     update(dt) {
-        this.collision_check();
-        for (let i = 0; i < this.balls.length; ++i) {
-            this.balls[i].update_loc(dt);
+        if (this.stopped) {
+            this.stick.update_loc();
+        } else {
+            this.collision_check();
+            for (let i = 0; i < this.balls.length; ++i) {
+                this.balls[i].update_loc(dt);
+            }
+            if (this.all_balls_stopped()) {
+                this.stopped = true;
+            }
         }
     }
 
@@ -200,7 +216,7 @@ export class Game {
         for (let i = 0; i < this.balls.length; ++i) {
             this.balls[i].draw(context, program_state);
         }
-        if (this.all_balls_stopped()) {
+        if (this.stopped) {
             this.stick.draw(context, program_state);
         }
     }
