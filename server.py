@@ -22,7 +22,7 @@ if sys.version_info < (3, 0):
     
     httpd = SocketServer.TCPServer(("", PORT), Handler)
 
-    print("serving at port", PORT)
+    print("Serving at port", PORT)
     httpd.serve_forever()
 
 
@@ -46,5 +46,5 @@ else:
 
     httpd = socketserver.TCPServer(("", PORT), Handler)
 
-    print("serving at port", PORT)
+    print("Serving at port", PORT)
     httpd.serve_forever()
