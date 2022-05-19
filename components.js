@@ -22,6 +22,12 @@ const TABLE_MAX_X = 20;
 const TABLE_MIN_Y = -40;
 const TABLE_MAX_Y = 40;
 
+export class KeyboardState {
+    static left_arrow = false;
+    static right_arrow = false;
+    static powered = false;
+}
+
 export class Ball {
     constructor(init_loc, init_vel, color, solid) {
         this.model_transform = Mat4.translation(init_loc[0], init_loc[1], init_loc[2]).times(Mat4.scale(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS));
@@ -77,38 +83,54 @@ export class Ball {
 }
 
 export class Cue_Stick {
-    constructor(init_loc, init_vel) {
+    constructor(init_loc) {
         this.angle = 0;
-        this.power = 0;
+        this.final_displacement = -1;
+        this.displacement = BALL_RADIUS;
         // How model_transform will be calculated given the ball's location and angle:
         this.model_transform = Mat4.translation(init_loc[0], init_loc[1], init_loc[2])
                                    .times(Mat4.rotation(this.angle, 0, 0, 1))
-                                   .times(Mat4.translation(0, -(2 * BALL_RADIUS + STICK_LENGTH / 2 + this.power), 0))
+                                   .times(Mat4.translation(0, -(this.displacement + BALL_RADIUS + STICK_LENGTH / 2), 0))
                                    .times(Mat4.scale(STICK_WIDTH, STICK_LENGTH, STICK_WIDTH))
                                    .times(Mat4.rotation(Math.PI / 2, 1, 0, 0));
         this.loc = init_loc;
-        this.vel = init_vel;
         this.released = false;
     }
 
-    get_released() {
-        return this.released;
-    }
-
-    set_released(new_released) {
-        this.released = new_released;
+    set_loc(new_loc) {
+        this.loc = new_loc;
     }
 
     update_loc() {
-        // If the stick has just been released (update this.loc):
-        if (this.released) {
-            // I'll let you do this part.
+        if ((!KeyboardState.powered && this.displacement > BALL_RADIUS) || this.released) {
+            if (!this.released) {
+                this.final_displacement = this.displacement;
+                this.released = true;
+            }
+            if (this.displacement <= 0) {
+                this.released = false;
+                this.displacement = BALL_RADIUS;
+                return vec3(Math.sin(-this.angle), Math.cos(-this.angle), 0).times(5 * this.final_displacement);
+            }
+            this.displacement -= this.final_displacement * 0.1;
+        } else {
+            if (KeyboardState.left_arrow) {
+                this.angle -= 0.005;
+            }
+            if (KeyboardState.right_arrow) {
+                this.angle += 0.005;
+            }
+            if (KeyboardState.powered) {
+                this.displacement += 0.1;
+            }
         }
+
         this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2])
                                    .times(Mat4.rotation(this.angle, 0, 0, 1))
-                                   .times(Mat4.translation(0, -(2.5 + STICK_LENGTH / 2 + this.power), 0))
+                                   .times(Mat4.translation(0, -(this.displacement + BALL_RADIUS + STICK_LENGTH / 2), 0))
                                    .times(Mat4.scale(STICK_WIDTH, STICK_LENGTH, STICK_WIDTH))
                                    .times(Mat4.rotation(Math.PI / 2, 1, 0, 0));
+        return null;
     }
 
     draw(context, program_state) {
@@ -126,9 +148,10 @@ export class Game {
         this.balls = this.balls.concat(this.make_even_layer(6, 4));
         this.balls = this.balls.concat(this.make_odd_layer(8, 5));
 
-        this.balls.push(new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FF0000"), false));
+        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FF0000"), false);
+        this.balls.push(this.cue_ball);
 
-        this.stick = new Cue_Stick(vec3(0, -20, 0), vec3(0, 0, 0));
+        this.stick = new Cue_Stick(vec3(0, -20, 0));
 
         this.turn = true;
         this.stopped = true;
@@ -178,7 +201,11 @@ export class Game {
 
     update(dt) {
         if (this.stopped) {
-            this.stick.update_loc();
+            let vel = this.stick.update_loc();
+            if (vel != null) {
+                this.cue_ball.set_vel(vel);
+                this.stopped = false;
+            }
         } else {
             this.collision_check();
             for (let i = 0; i < this.balls.length; ++i) {
@@ -186,6 +213,7 @@ export class Game {
             }
             if (this.all_balls_stopped()) {
                 this.stopped = true;
+                this.stick.set_loc(this.cue_ball.get_loc());
             }
         }
     }

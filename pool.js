@@ -1,6 +1,6 @@
 import { defs, tiny } from './examples/common.js';
 import { Many_Lights_Demo } from './examples/many-lights-demo.js';
-import { Ball, Game } from './components.js';
+import { KeyboardState, Ball, Game } from './components.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -16,7 +16,9 @@ export class Pool extends Scene {
     }
 
     make_control_panel() {
-
+        this.key_triggered_button("Left", ["h"], () => KeyboardState.left_arrow = true, undefined, () => KeyboardState.left_arrow = false);
+        this.key_triggered_button("Right", ["l"], () => KeyboardState.right_arrow = true, undefined, () => KeyboardState.right_arrow = false);
+        this.key_triggered_button("Power", ["j"], () => KeyboardState.powered = true, undefined, () => KeyboardState.powered = false);
     }
 
     display(context, program_state) {
@@ -35,6 +37,7 @@ export class Pool extends Scene {
         const light_position = vec4(0, 0, 100, 1);
         program_state.lights = [new Light(light_position, hex_color("#FFFFFF"), 1000000)];
 
+        this.game.update(dt);
         this.game.draw(context, program_state);
     }
 }
