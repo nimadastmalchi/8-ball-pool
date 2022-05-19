@@ -14,6 +14,9 @@ const STICK_WIDTH = 0.25;
 const STICK_SHAPE = new defs.Capped_Cylinder(5, 25, [[0, 2], [0, 1]]);
 const STICK_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#C4A484") });
 
+const TABLE_SHAPE = new defs.Cube();
+const TABLE_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 1, diffusivity: 0.25, specularity: 0.1, color: hex_color("#013220") });
+
 const COLLISION_VEL_LOSS = 0.95;
 const FRICTION_VEL_LOSS = 0.9925;
 
@@ -25,7 +28,7 @@ const TABLE_MAX_Y = 40;
 export class KeyboardState {
     static left_arrow = false;
     static right_arrow = false;
-    static powered = false;
+    static powering = false;
 }
 
 export class Ball {
@@ -87,9 +90,7 @@ export class Cue_Stick {
         this.angle = 0;
         this.final_displacement = -1;
         this.displacement = BALL_RADIUS;
-        // How model_transform will be calculated given the ball's location and angle:
         this.model_transform = Mat4.translation(init_loc[0], init_loc[1], init_loc[2])
-                                   .times(Mat4.rotation(this.angle, 0, 0, 1))
                                    .times(Mat4.translation(0, -(this.displacement + BALL_RADIUS + STICK_LENGTH / 2), 0))
                                    .times(Mat4.scale(STICK_WIDTH, STICK_LENGTH, STICK_WIDTH))
                                    .times(Mat4.rotation(Math.PI / 2, 1, 0, 0));
@@ -102,8 +103,9 @@ export class Cue_Stick {
     }
 
     update_loc() {
-        if ((!KeyboardState.powered && this.displacement > BALL_RADIUS) || this.released) {
+        if ((!KeyboardState.powering && this.displacement > BALL_RADIUS) || this.released) {
             if (!this.released) {
+                // First frame in which the cue stick is released.
                 this.final_displacement = this.displacement;
                 this.released = true;
             }
@@ -114,13 +116,14 @@ export class Cue_Stick {
             }
             this.displacement -= this.final_displacement * 0.1;
         } else {
+            // Cue stick has not been released.
             if (KeyboardState.left_arrow) {
                 this.angle -= 0.005;
             }
             if (KeyboardState.right_arrow) {
                 this.angle += 0.005;
             }
-            if (KeyboardState.powered) {
+            if (KeyboardState.powering) {
                 this.displacement += 0.1;
             }
         }
@@ -151,7 +154,7 @@ export class Game {
         this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FF0000"), false);
         this.balls.push(this.cue_ball);
 
-        this.stick = new Cue_Stick(vec3(0, -20, 0));
+        this.cue_stick = new Cue_Stick(vec3(0, -20, 0));
 
         this.turn = true;
         this.stopped = true;
@@ -201,8 +204,9 @@ export class Game {
 
     update(dt) {
         if (this.stopped) {
-            let vel = this.stick.update_loc();
+            let vel = this.cue_stick.update_loc();
             if (vel != null) {
+                // The cue stick has hit the cue ball.
                 this.cue_ball.set_vel(vel);
                 this.stopped = false;
             }
@@ -213,7 +217,7 @@ export class Game {
             }
             if (this.all_balls_stopped()) {
                 this.stopped = true;
-                this.stick.set_loc(this.cue_ball.get_loc());
+                this.cue_stick.set_loc(this.cue_ball.get_loc());
             }
         }
     }
@@ -241,11 +245,12 @@ export class Game {
     }
 
     draw(context, program_state) {
+        TABLE_SHAPE.draw(context, program_state, Mat4.translation(0, 0, -2).times(Mat4.scale(TABLE_MAX_X, TABLE_MAX_Y, 1)), TABLE_MATERIAL);
         for (let i = 0; i < this.balls.length; ++i) {
             this.balls[i].draw(context, program_state);
         }
         if (this.stopped) {
-            this.stick.draw(context, program_state);
+            this.cue_stick.draw(context, program_state);
         }
     }
 }

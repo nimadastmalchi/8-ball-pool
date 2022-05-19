@@ -1,5 +1,4 @@
 import { defs, tiny } from './examples/common.js';
-import { Many_Lights_Demo } from './examples/many-lights-demo.js';
 import { KeyboardState, Ball, Game } from './components.js';
 
 const {
@@ -10,7 +9,7 @@ export class Pool extends Scene {
     constructor() {
         super();
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 0, 100), vec3(0, 0, 0), vec3(0, 1, 1));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1));
 
         this.game = new Game();
     }
@@ -18,12 +17,10 @@ export class Pool extends Scene {
     make_control_panel() {
         this.key_triggered_button("Left", ["h"], () => KeyboardState.left_arrow = true, undefined, () => KeyboardState.left_arrow = false);
         this.key_triggered_button("Right", ["l"], () => KeyboardState.right_arrow = true, undefined, () => KeyboardState.right_arrow = false);
-        this.key_triggered_button("Power", ["j"], () => KeyboardState.powered = true, undefined, () => KeyboardState.powered = false);
+        this.key_triggered_button("Power", ["j"], () => KeyboardState.powering = true, undefined, () => KeyboardState.powering = false);
     }
 
     display(context, program_state) {
-        var e = window.event;
-
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             program_state.set_camera(this.initial_camera_location.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)));
