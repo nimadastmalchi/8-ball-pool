@@ -162,7 +162,7 @@ export class Cue_Stick {
 export class Game {
     constructor() {
         let space = 0.1;
-        this.colors = ["#FF0000", "#FF0000", "#00FF00", "#00FF00", "#0000FF", "#0000FF", "#FFFF00", "#FFFF00", "#FFCCCB", "#FFCCCB", "#9CC7FF", "#9CC7FF", "#90EE90", "#90EE90", "#000000"];
+        this.colors = ["#FF0000", "#FF0000", "#00FF00", "#00FF00", "#0000FF", "#0000FF", "#FFFF00", "#FFFF00", "#FFA500", "#FFA500", "#A020F0", "#A020F0", "#67001A", "#67001A", "#000000"];
         this.balls = [];
         this.balls = this.balls.concat(this.make_odd_layer(0, 1));
         this.balls = this.balls.concat(this.make_even_layer(2, 2));
