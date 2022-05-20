@@ -29,6 +29,7 @@ export class KeyboardState {
     static left_arrow = false;
     static right_arrow = false;
     static powering = false;
+    static fpv = false;
 }
 
 export class Ball {
@@ -94,12 +95,20 @@ export class Cue_Stick {
                                    .times(Mat4.translation(0, -(this.displacement + BALL_RADIUS + STICK_LENGTH / 2), 0))
                                    .times(Mat4.scale(STICK_WIDTH, STICK_LENGTH, STICK_WIDTH))
                                    .times(Mat4.rotation(Math.PI / 2, 1, 0, 0));
-        this.loc = init_loc;
+        this.init_loc = init_loc;
         this.released = false;
     }
 
+    get_loc() {
+        return vec3(this.model_transform[0][3], this.model_transform[1][3], this.model_transform[2][3]);
+    }
+
     set_loc(new_loc) {
-        this.loc = new_loc;
+        this.init_loc = new_loc;
+    }
+
+    get_cam_matrix() {
+        return Mat4.inverse(this.model_transform.times(Mat4.translation(0, 1, 25)));
     }
 
     update_loc() {
@@ -128,7 +137,7 @@ export class Cue_Stick {
             }
         }
 
-        this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2])
+        this.model_transform = Mat4.translation(this.init_loc[0], this.init_loc[1], this.init_loc[2])
                                    .times(Mat4.rotation(this.angle, 0, 0, 1))
                                    .times(Mat4.translation(0, -(this.displacement + BALL_RADIUS + STICK_LENGTH / 2), 0))
                                    .times(Mat4.scale(STICK_WIDTH, STICK_LENGTH, STICK_WIDTH))
@@ -191,6 +200,19 @@ export class Game {
             --n;
         }
         return balls;
+    }
+
+    get_cam_matrix() {
+        let default_cam_loc = Mat4.rotation(-Math.PI/2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
+        if (!KeyboardState.fpv) {
+            return default_cam_loc;
+        } else {
+            if (!this.stopped) {
+                return default_cam_loc;
+            } else {
+                return this.cue_stick.get_cam_matrix();
+            }
+        }
     }
 
     all_balls_stopped() {

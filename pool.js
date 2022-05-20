@@ -18,13 +18,16 @@ export class Pool extends Scene {
         this.key_triggered_button("Left", ["h"], () => KeyboardState.left_arrow = true, undefined, () => KeyboardState.left_arrow = false);
         this.key_triggered_button("Right", ["l"], () => KeyboardState.right_arrow = true, undefined, () => KeyboardState.right_arrow = false);
         this.key_triggered_button("Power", ["j"], () => KeyboardState.powering = true, undefined, () => KeyboardState.powering = false);
+        this.key_triggered_button("Toggle FPV", ["v"], () => KeyboardState.fpv ^= 1);
     }
 
     display(context, program_state) {
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
-            program_state.set_camera(this.initial_camera_location.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)));
+            //program_state.set_camera(this.initial_camera_location.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)));
+            program_state.set_camera(this.game.get_cam_matrix());
         }
+        program_state.set_camera(this.game.get_cam_matrix());
 
         program_state.projection_transform = Mat4.perspective(
             Math.PI / 4, context.width / context.height, .1, 1000);
