@@ -107,10 +107,10 @@ export class Cue_Stick {
         // Direction vector of cue stick:
         let d = this.init_loc.minus(this.get_loc());
 
-        // Normal vector to directino of cue stick:
+        // Normal vector to direction of cue stick:
         let n = vec3(d[1], -d[0], 0);
 
-        return Mat4.inverse(Mat4.rotation(-Math.PI/20, n[0], n[1], 0).times(this.model_transform.times(Mat4.translation(0, 0, 100))));
+        return Mat4.inverse(Mat4.rotation(-Math.PI / 20, n[0], n[1], 0).times(this.model_transform.times(Mat4.translation(0, 0, 100))));
     }
 
     set_angle(new_angle) {
