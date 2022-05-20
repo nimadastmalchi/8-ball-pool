@@ -113,6 +113,10 @@ export class Cue_Stick {
         return Mat4.inverse(Mat4.rotation(-Math.PI/20, n[0], n[1], 0).times(this.model_transform.times(Mat4.translation(0, 0, 100))));
     }
 
+    set_angle(new_angle) {
+        this.angle = new_angle;
+    }
+
     set_loc(new_loc) {
         this.init_loc = new_loc;
     }
@@ -245,7 +249,13 @@ export class Game {
             }
             if (this.all_balls_stopped()) {
                 this.stopped = true;
-                this.cue_stick.set_loc(this.cue_ball.get_loc());
+                let cue_ball_loc = this.cue_ball.get_loc();
+                this.cue_stick.set_loc(cue_ball_loc);
+                let angle = Math.atan(-cue_ball_loc[0] / cue_ball_loc[1]);
+                if (cue_ball_loc[1] > 0) {
+                    angle += Math.PI;
+                }
+                this.cue_stick.set_angle(angle);
             }
         }
     }
