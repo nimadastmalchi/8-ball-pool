@@ -7,7 +7,7 @@ const {
 const BALL_RADIUS = 1;
 const BALL_INIT_SPACE = 0.2;
 const BALL_SHAPE = new defs.Subdivision_Sphere(8);
-const BALL_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#FFFFFF") });
+const BALL_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, specularity: 0.2, color: hex_color("#FFFFFF") });
 
 const STICK_LENGTH = 40;
 const STICK_WIDTH = 0.25;
@@ -15,7 +15,7 @@ const STICK_SHAPE = new defs.Capped_Cylinder(5, 25, [[0, 2], [0, 1]]);
 const STICK_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#C4A484") });
 
 const TABLE_SHAPE = new defs.Cube();
-const TABLE_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 1, diffusivity: 0.25, specularity: 0.1, color: hex_color("#013220") });
+const TABLE_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#014220") });
 
 const COLLISION_VEL_LOSS = 0.95;
 const FRICTION_VEL_LOSS = 0.9925;
@@ -104,7 +104,13 @@ export class Cue_Stick {
     }
 
     get_cam_matrix() {
-        return Mat4.inverse(this.model_transform.times(Mat4.translation(0, 0, 25)));
+        // Direction vector of cue stick:
+        let d = this.init_loc.minus(this.get_loc());
+
+        // Normal vector to directino of cue stick:
+        let n = vec3(d[1], -d[0], 0);
+
+        return Mat4.inverse(Mat4.rotation(-Math.PI/20, n[0], n[1], 0).times(this.model_transform.times(Mat4.translation(0, 0, 100))));
     }
 
     set_loc(new_loc) {
