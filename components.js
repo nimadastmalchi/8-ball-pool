@@ -103,12 +103,12 @@ export class Cue_Stick {
         return vec3(this.model_transform[0][3], this.model_transform[1][3], this.model_transform[2][3]);
     }
 
-    set_loc(new_loc) {
-        this.init_loc = new_loc;
+    get_cam_matrix() {
+        return Mat4.inverse(this.model_transform.times(Mat4.translation(0, 0, 25)));
     }
 
-    get_cam_matrix() {
-        return Mat4.inverse(this.model_transform.times(Mat4.translation(0, 1, 25)));
+    set_loc(new_loc) {
+        this.init_loc = new_loc;
     }
 
     update_loc() {
@@ -203,7 +203,7 @@ export class Game {
     }
 
     get_cam_matrix() {
-        let default_cam_loc = Mat4.rotation(-Math.PI/2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
+        let default_cam_loc = Mat4.rotation(-Math.PI / 2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
         if (!KeyboardState.fpv) {
             return default_cam_loc;
         } else {
