@@ -163,6 +163,7 @@ export class Cue_Stick {
 export class Game {
     constructor() {
         let space = 0.1;
+        this.colors = ["#FF0000", "#FF0000", "#00FF00", "#00FF00", "#0000FF", "#0000FF", "#FFFF00", "#FFFF00", "#FFCCCB", "#FFCCCB", "#9CC7FF", "#9CC7FF", "#90EE90", "#90EE90", "#000000"];
         this.balls = [];
         this.balls = this.balls.concat(this.make_odd_layer(0, 1));
         this.balls = this.balls.concat(this.make_even_layer(2, 2));
@@ -170,7 +171,7 @@ export class Game {
         this.balls = this.balls.concat(this.make_even_layer(6, 4));
         this.balls = this.balls.concat(this.make_odd_layer(8, 5));
 
-        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FF0000"), false);
+        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
         this.balls.push(this.cue_ball);
 
         this.cue_stick = new Cue_Stick(vec3(0, -20, 0));
@@ -181,20 +182,26 @@ export class Game {
 
     make_odd_layer(y, n) {
         let balls = [];
-        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+        let color_index = Math.floor(Math.random()*this.colors.length);
+        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
+        this.colors.splice(color_index, 1);
         --n;
 
         let num_on_left = n / 2;
         let i = 1;
         while (num_on_left > 0) {
-            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            color_index = Math.floor(Math.random()*this.colors.length);
+            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
+            this.colors.splice(color_index, 1);
             --num_on_left;
         }
 
         let num_on_right = n / 2;
         i = 1;
         while (num_on_right > 0) {
-            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            color_index = Math.floor(Math.random()*this.colors.length);
+            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
+            this.colors.splice(color_index, 1);
             --num_on_right;
         }
 
@@ -205,7 +212,9 @@ export class Game {
         let balls = [];
         let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n / 2.0 - 1) * BALL_INIT_SPACE + BALL_INIT_SPACE / 2.0;
         while (n > 0) {
-            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false));
+            let color_index = Math.floor(Math.random()*this.colors.length);
+            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
+            this.colors.splice(color_index, 1);
             x -= 2 * BALL_RADIUS + BALL_INIT_SPACE;
             --n;
         }

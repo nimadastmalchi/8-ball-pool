@@ -34,7 +34,7 @@ export class Pool extends Scene {
 
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
 
-        program_state.lights = [new Light(vec4(0, 0, 10, 1), hex_color("#FFFFFF"), 100)];
+        program_state.lights = [new Light(vec4(0, 0, 10, 1), hex_color("#FFFFFF"), 1000)];
 
         this.game.update(dt);
         this.game.draw(context, program_state);
