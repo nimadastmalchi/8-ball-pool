@@ -106,7 +106,6 @@ export class Cue_Stick {
     get_cam_matrix() {
         // Direction vector of cue stick:
         let d = this.init_loc.minus(this.get_loc());
-
         // Normal vector to direction of cue stick:
         let n = vec3(d[1], -d[0], 0);
 
@@ -182,7 +181,7 @@ export class Game {
 
     make_odd_layer(y, n) {
         let balls = [];
-        let color_index = Math.floor(Math.random()*this.colors.length);
+        let color_index = Math.floor(Math.random() * this.colors.length);
         balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
         this.colors.splice(color_index, 1);
         --n;
@@ -190,7 +189,7 @@ export class Game {
         let num_on_left = n / 2;
         let i = 1;
         while (num_on_left > 0) {
-            color_index = Math.floor(Math.random()*this.colors.length);
+            color_index = Math.floor(Math.random() * this.colors.length);
             balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
             this.colors.splice(color_index, 1);
             --num_on_left;
@@ -199,7 +198,7 @@ export class Game {
         let num_on_right = n / 2;
         i = 1;
         while (num_on_right > 0) {
-            color_index = Math.floor(Math.random()*this.colors.length);
+            color_index = Math.floor(Math.random() * this.colors.length);
             balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
             this.colors.splice(color_index, 1);
             --num_on_right;
@@ -212,7 +211,7 @@ export class Game {
         let balls = [];
         let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n / 2.0 - 1) * BALL_INIT_SPACE + BALL_INIT_SPACE / 2.0;
         while (n > 0) {
-            let color_index = Math.floor(Math.random()*this.colors.length);
+            let color_index = Math.floor(Math.random() * this.colors.length);
             balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
             this.colors.splice(color_index, 1);
             x -= 2 * BALL_RADIUS + BALL_INIT_SPACE;

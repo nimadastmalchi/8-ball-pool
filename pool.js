@@ -24,7 +24,7 @@ export class Pool extends Scene {
     display(context, program_state) {
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
-            //program_state.set_camera(this.initial_camera_location.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)));
+            // program_state.set_camera(this.initial_camera_location.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)));
             program_state.set_camera(this.game.get_cam_matrix());
         }
         program_state.set_camera(this.game.get_cam_matrix());
