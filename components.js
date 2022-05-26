@@ -49,6 +49,8 @@ const TABLE_MAX_X = 20;
 const TABLE_MIN_Y = -40;
 const TABLE_MAX_Y = 40;
 
+const POCKET_LOCS = [ vec3(-20, 0, 0), vec3(20, 0, 0), vec3(-19, 39, 0), vec3(-19, -39, 0), vec3(19, 39, 0), vec(19, -39, 0) ]
+
 export class KeyboardState {
     static left_arrow = false;
     static right_arrow = false;
@@ -63,6 +65,7 @@ export class Ball {
         this.vel = init_vel;
         this.solid = solid;
         this.color = color;
+        this.pocket = null;
     }
 
     get_loc() {
@@ -86,6 +89,24 @@ export class Ball {
     }
 
     update_loc(dt) {
+        if (this.pocket != null) {
+            if (this.loc[2] < -2) {
+                this.set_vel(vec3(0, 0, 0));
+                return;
+            }
+
+            let x_sign = this.vel[0] >= 0 ? 1 : -1;
+            let y_sign = this.vel[1] >= 0 ? 1 : -1;
+
+            let vel_dir = this.pocket.plus(vec3(x_sign * 4, y_sign * 4, -10)).minus(this.loc).normalized();
+            this.set_vel(vel_dir.times(20));
+
+            let dl = this.vel.times(dt);
+            this.loc = this.loc.plus(dl);
+            this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
+            return;
+        }
+
         let dl = this.vel.times(dt);
         this.loc = this.loc.plus(dl);
         this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
@@ -93,6 +114,14 @@ export class Ball {
 
         if (this.vel.norm() < 0.25) {
             this.vel = vec3(0, 0, 0);
+        }
+
+        // Check for pocket
+        for (const pocket_loc of POCKET_LOCS) {
+            let dist_vec = this.loc.minus(pocket_loc);
+            if (dist_vec.dot(dist_vec) < 4) {
+                this.pocket = pocket_loc;
+            }
         }
 
         // Ensure ball is within bounds:
