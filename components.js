@@ -4,6 +4,27 @@ const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene
 } = tiny;
 
+class Table_Phong extends defs.Phong_Shader {
+    fragment_glsl_code() {
+        return this.shared_glsl_code() + `
+            void main() {
+                // Compute an initial (ambient) color:
+                gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
+                // Compute the final color with contributions from lights:
+                gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
+                // Check whether the fragment is in a pocket:
+                if ( distance( vec2( -20.0, 0.0 ), vertex_worldspace.xy ) <= 2.0 ||
+                     distance( vec2( 20.0, 0.0 ), vertex_worldspace.xy ) <= 2.0 ||
+                     distance( vec2( -19.0, 39.0 ), vertex_worldspace.xy ) <= 2.0 ||
+                     distance( vec2( -19.0, -39.0 ), vertex_worldspace.xy ) <= 2.0 ||
+                     distance( vec2( 19.0, 39.0 ), vertex_worldspace.xy ) <= 2.0 ||
+                     distance( vec2( 19.0, -39.0 ), vertex_worldspace.xy ) <= 2.0 ) {
+                     gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+                }
+            } `;
+    }
+}
+
 const BALL_RADIUS = 1;
 const BALL_INIT_SPACE = 0.2;
 const BALL_SHAPE = new defs.Subdivision_Sphere(8);
@@ -15,7 +36,10 @@ const STICK_SHAPE = new defs.Capped_Cylinder(5, 25, [[0, 2], [0, 1]]);
 const STICK_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#C4A484") });
 
 const TABLE_SHAPE = new defs.Cube();
-const TABLE_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#014220") });
+const TABLE_MATERIAL = new Material(new Table_Phong(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#014220") });
+
+const RAILING_SHAPE = new defs.Cube();
+const RAILING_MATERIAL = new Material(new Table_Phong(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#654321") });
 
 const COLLISION_VEL_LOSS = 0.95;
 const FRICTION_VEL_LOSS = 0.9925;
@@ -220,6 +244,13 @@ export class Game {
         return balls;
     }
 
+    make_railings(context, program_state) {
+        RAILING_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X - 2, 0, -2).times(Mat4.scale(2, TABLE_MAX_Y + 4, 2)), RAILING_MATERIAL);
+        RAILING_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MAX_X + 2, 0, -2).times(Mat4.scale(2, TABLE_MAX_Y + 4, 2)), RAILING_MATERIAL);
+        RAILING_SHAPE.draw(context, program_state, Mat4.translation(0, TABLE_MAX_Y + 2, -2).times(Mat4.scale(TABLE_MAX_X, 2, 2)), RAILING_MATERIAL);
+        RAILING_SHAPE.draw(context, program_state, Mat4.translation(0, TABLE_MIN_Y - 2, -2).times(Mat4.scale(TABLE_MAX_X, 2, 2)), RAILING_MATERIAL);
+    }
+
     get_cam_matrix() {
         let default_cam_loc = Mat4.rotation(-Math.PI / 2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
         if (!KeyboardState.fpv) {
@@ -298,5 +329,7 @@ export class Game {
         if (this.stopped) {
             this.cue_stick.draw(context, program_state);
         }
+        this.make_railings(context, program_state);
     }
+
 }
