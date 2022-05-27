@@ -44,7 +44,7 @@ export class Cue_Stick {
     }
 
     update_loc() {
-        if ((!KeyboardState.powering && this.displacement > BALL_RADIUS) || this.released) {
+        if ((!KeyboardState.down && this.displacement > BALL_RADIUS) || this.released) {
             if (!this.released) {
                 // First frame in which the cue stick is released.
                 this.final_displacement = this.displacement;
@@ -58,13 +58,13 @@ export class Cue_Stick {
             this.displacement -= this.final_displacement * 0.1;
         } else {
             // Cue stick has not been released.
-            if (KeyboardState.left_arrow) {
+            if (KeyboardState.left) {
                 this.angle -= 0.005;
             }
-            if (KeyboardState.right_arrow) {
+            if (KeyboardState.right) {
                 this.angle += 0.005;
             }
-            if (KeyboardState.powering) {
+            if (KeyboardState.down) {
                 this.displacement += 0.1;
             }
         }

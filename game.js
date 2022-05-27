@@ -11,15 +11,21 @@ const {
 } = tiny;
 
 export class KeyboardState {
-    static left_arrow = false;
-    static right_arrow = false;
-    static powering = false;
+    static left = false;
+    static right = false;
+    static down = false;
+    static up = false;
+    static apply = false;
     static fpv = false;
+}
+
+export class GameState {
+    static player_turn = 0;
+    static choose_cue_ball = false;
 }
 
 export class Game {
     constructor() {
-        let space = 0.1;
         this.colors = ["#FF0000", "#FF0000", "#00FF00", "#00FF00", "#0000FF", "#0000FF", "#FFFF00", "#FFFF00", "#FFA500", "#FFA500", "#A020F0", "#A020F0", "#67001A", "#67001A", "#000000"];
         this.balls = [];
         this.balls = this.balls.concat(this.make_odd_layer(0, 1));
@@ -87,7 +93,7 @@ export class Game {
 
     get_cam_matrix() {
         let default_cam_loc = Mat4.rotation(-Math.PI / 2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
-        if (!KeyboardState.fpv) {
+        if (!KeyboardState.fpv || GameState.choose_cue_ball) {
             return default_cam_loc;
         } else {
             if (!this.stopped) {
@@ -108,6 +114,43 @@ export class Game {
     }
 
     update(dt) {
+        if (GameState.choose_cue_ball) {
+            let cue_ball_loc = this.cue_ball.get_loc();
+
+            // TODO: Ensure cue ball is not colliding with other balls
+            if (KeyboardState.apply) {
+                if (this.cue_ball_collides()) {
+                    console.log('Choose another location');
+                    return;
+                }
+
+                GameState.choose_cue_ball = false;
+                this.cue_stick.set_loc(cue_ball_loc);
+                let angle = Math.atan(-cue_ball_loc[0] / cue_ball_loc[1]);
+                if (cue_ball_loc[1] > 0) {
+                    angle += Math.PI;
+                }
+                this.cue_stick.set_angle(angle);
+                return;
+            }
+
+            let dl = 0.07;
+            if (KeyboardState.right) {
+                cue_ball_loc = cue_ball_loc.plus(vec3(0, dl, 0));
+            }
+            if (KeyboardState.left) {
+                cue_ball_loc = cue_ball_loc.plus(vec3(0, -dl, 0));
+            }
+            if (KeyboardState.up) {
+                cue_ball_loc = cue_ball_loc.plus(vec3(-dl, 0, 0));
+            }
+            if (KeyboardState.down) {
+                cue_ball_loc = cue_ball_loc.plus(vec3(dl, 0, 0));
+            }
+            this.cue_ball.set_loc(cue_ball_loc);
+            return;
+        }
+
         if (this.stopped) {
             let vel = this.cue_stick.update_loc();
             if (vel != null) {
@@ -116,7 +159,7 @@ export class Game {
                 this.stopped = false;
             }
         } else {
-            this.collision_check();
+            this.apply_collsion();
             for (let i = 0; i < this.balls.length; ++i) {
                 this.balls[i].update_loc(dt);
             }
@@ -125,10 +168,11 @@ export class Game {
 
                 // Set new cue ball location:
                 if (!this.cue_ball.is_visible()) {
-                    // TODO: let player choose a location
                     this.cue_ball.set_loc(vec3(0, -20, 0));
                     this.cue_ball.set_pocket(null);
                     this.cue_ball.set_visibility(true);
+                    GameState.choose_cue_ball = true;
+                    GameState.player_turn ^= 1;
                 }
 
                 // Set new cue stick location:
@@ -143,9 +187,28 @@ export class Game {
         }
     }
 
-    collision_check() {
+    cue_ball_collides() {
+        for (const ball of this.balls) {
+            if (ball === this.cue_ball) {
+                continue;
+            }
+            let loc1 = this.cue_ball.get_loc();
+            let loc2 = ball.get_loc();
+            let dist_vec = loc1.minus(loc2);
+            let dist = dist_vec.norm();
+            if (dist <= 2 * BALL_RADIUS) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    apply_collsion() {
+        let ret_val = false;
         for (let i = 0; i < this.balls.length; ++i) {
             for (let j = i + 1; j < this.balls.length; ++j) {
+                ret_val = true;
+
                 let loc1 = this.balls[i].get_loc();
                 let loc2 = this.balls[j].get_loc();
                 let dist_vec = loc1.minus(loc2);
@@ -163,6 +226,7 @@ export class Game {
                 }
             }
         }
+        return ret_val;
     }
 
     draw(context, program_state) {
@@ -172,7 +236,7 @@ export class Game {
                 ball.draw(context, program_state);
             }
         }
-        if (this.stopped) {
+        if (this.stopped && !GameState.choose_cue_ball) {
             this.cue_stick.draw(context, program_state);
         }
         this.make_railings(context, program_state);

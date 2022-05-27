@@ -15,9 +15,11 @@ export class Pool extends Scene {
     }
 
     make_control_panel() {
-        this.key_triggered_button("Left", ["h"], () => KeyboardState.left_arrow = true, undefined, () => KeyboardState.left_arrow = false);
-        this.key_triggered_button("Right", ["l"], () => KeyboardState.right_arrow = true, undefined, () => KeyboardState.right_arrow = false);
-        this.key_triggered_button("Power", ["j"], () => KeyboardState.powering = true, undefined, () => KeyboardState.powering = false);
+        this.key_triggered_button("Left", ["h"], () => KeyboardState.left = true, undefined, () => KeyboardState.left = false);
+        this.key_triggered_button("Right", ["l"], () => KeyboardState.right = true, undefined, () => KeyboardState.right = false);
+        this.key_triggered_button("Down / Power", ["j"], () => KeyboardState.down = true, undefined, () => KeyboardState.down = false);
+        this.key_triggered_button("Up", ["k"], () => KeyboardState.up = true, undefined, () => KeyboardState.up = false);
+        this.key_triggered_button("Apply", ["a"], () => KeyboardState.apply = true, undefined, () => KeyboardState.apply = false);
         this.key_triggered_button("Toggle FPV", ["v"], () => KeyboardState.fpv ^= 1);
     }
 
