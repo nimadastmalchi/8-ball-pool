@@ -12,6 +12,7 @@ export class Ball {
         this.solid = solid;
         this.color = color;
         this.pocket = null;
+        this.visible = true;
     }
 
     get_loc() {
@@ -26,6 +27,10 @@ export class Ball {
         return this.vel.equals(vec3(0, 0, 0));
     }
 
+    is_visible() {
+        return this.visible;
+    }
+
     set_loc(new_loc) {
         this.loc = new_loc;
     }
@@ -34,17 +39,26 @@ export class Ball {
         this.vel = new_vel;
     }
 
+    set_pocket(new_pocket) {
+        this.pocket = new_pocket;
+    }
+
+    set_visibility(new_visibility) {
+        this.visible = new_visibility;
+    }
+
     update_loc(dt) {
         if (this.pocket != null) {
             if (this.loc[2] < -2) {
                 this.set_vel(vec3(0, 0, 0));
+                this.visible = false;
                 return;
             }
 
             let x_sign = this.vel[0] >= 0 ? 1 : -1;
             let y_sign = this.vel[1] >= 0 ? 1 : -1;
 
-            let vel_dir = this.pocket.plus(vec3(x_sign * 4, y_sign * 4, -10)).minus(this.loc).normalized();
+            let vel_dir = this.pocket.plus(vec3(x_sign * 6, y_sign * 6, -10)).minus(this.loc).normalized();
             this.set_vel(vel_dir.times(20));
 
             let dl = this.vel.times(dt);
@@ -62,7 +76,7 @@ export class Ball {
             this.vel = vec3(0, 0, 0);
         }
 
-        // Check for pocket
+        // Check for pocket:
         for (const pocket_loc of POCKET_LOCS) {
             let dist_vec = this.loc.minus(pocket_loc);
             if (dist_vec.dot(dist_vec) < 4) {
@@ -81,6 +95,8 @@ export class Ball {
     }
 
     draw(context, program_state) {
+        // Function set_loc() may be called after the update() function, so ensure this.model_transform is up to date:
+        this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
         BALL_SHAPE.draw(context, program_state, this.model_transform, BALL_MATERIAL.override({ color: this.color }));
     }
 }

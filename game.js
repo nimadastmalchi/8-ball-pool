@@ -122,6 +122,16 @@ export class Game {
             }
             if (this.all_balls_stopped()) {
                 this.stopped = true;
+
+                // Set new cue ball location:
+                if (!this.cue_ball.is_visible()) {
+                    // TODO: let player choose a location
+                    this.cue_ball.set_loc(vec3(0, -20, 0));
+                    this.cue_ball.set_pocket(null);
+                    this.cue_ball.set_visibility(true);
+                }
+
+                // Set new cue stick location:
                 let cue_ball_loc = this.cue_ball.get_loc();
                 this.cue_stick.set_loc(cue_ball_loc);
                 let angle = Math.atan(-cue_ball_loc[0] / cue_ball_loc[1]);
@@ -157,8 +167,10 @@ export class Game {
 
     draw(context, program_state) {
         TABLE_SHAPE.draw(context, program_state, Mat4.translation(0, 0, -2).times(Mat4.scale(TABLE_MAX_X, TABLE_MAX_Y, 1)), TABLE_MATERIAL);
-        for (let i = 0; i < this.balls.length; ++i) {
-            this.balls[i].draw(context, program_state);
+        for (const ball of this.balls) {
+            if (ball.is_visible()) {
+                ball.draw(context, program_state);
+            }
         }
         if (this.stopped) {
             this.cue_stick.draw(context, program_state);
