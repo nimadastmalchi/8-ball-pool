@@ -1,5 +1,5 @@
 import { defs, tiny } from './examples/common.js';
-import { KeyboardState, Game } from './game.js';
+import { Keyboard_State, Game } from './game.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -15,12 +15,13 @@ export class Pool extends Scene {
     }
 
     make_control_panel() {
-        this.key_triggered_button("Left", ["h"], () => KeyboardState.left = true, undefined, () => KeyboardState.left = false);
-        this.key_triggered_button("Right", ["l"], () => KeyboardState.right = true, undefined, () => KeyboardState.right = false);
-        this.key_triggered_button("Down / Power", ["j"], () => KeyboardState.down = true, undefined, () => KeyboardState.down = false);
-        this.key_triggered_button("Up", ["k"], () => KeyboardState.up = true, undefined, () => KeyboardState.up = false);
-        this.key_triggered_button("Apply", ["a"], () => KeyboardState.apply = true, undefined, () => KeyboardState.apply = false);
-        this.key_triggered_button("Toggle FPV", ["v"], () => KeyboardState.fpv ^= 1);
+        this.key_triggered_button("Left", ["h"], () => Keyboard_State.left = true, undefined, () => Keyboard_State.left = false);
+        this.key_triggered_button("Right", ["l"], () => Keyboard_State.right = true, undefined, () => Keyboard_State.right = false);
+        this.key_triggered_button("Down / Power", ["j"], () => Keyboard_State.down = true, undefined, () => Keyboard_State.down = false);
+        this.key_triggered_button("Up", ["k"], () => Keyboard_State.up = true, undefined, () => Keyboard_State.up = false);
+        this.key_triggered_button("Apply", ["a"], () => Keyboard_State.apply = true, undefined, () => Keyboard_State.apply = false);
+        this.key_triggered_button("Toggle FPV", ["v"], () => Keyboard_State.fpv ^= 1);
+        this.key_triggered_button("Restart", ["r"], () => this.game = new Game());
     }
 
     display(context, program_state) {

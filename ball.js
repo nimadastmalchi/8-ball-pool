@@ -53,50 +53,50 @@ export class Ball {
             if (this.loc[2] < -2) {
                 this.set_vel(vec3(0, 0, 0));
                 this.visible = false;
-                return;
             }
+            else {
+                let x_sign = this.vel[0] >= 0 ? 1 : -1;
+                let y_sign = this.vel[1] >= 0 ? 1 : -1;
 
-            let x_sign = this.vel[0] >= 0 ? 1 : -1;
-            let y_sign = this.vel[1] >= 0 ? 1 : -1;
+                let vel_dir = this.pocket.plus(vec3(x_sign * 6, y_sign * 6, -10)).minus(this.loc).normalized();
+                this.set_vel(vel_dir.times(20));
 
-            let vel_dir = this.pocket.plus(vec3(x_sign * 6, y_sign * 6, -10)).minus(this.loc).normalized();
-            this.set_vel(vel_dir.times(20));
-
+                let dl = this.vel.times(dt);
+                this.loc = this.loc.plus(dl);
+                this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
+            }
+        }
+        else {
             let dl = this.vel.times(dt);
             this.loc = this.loc.plus(dl);
             this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
-            return;
-        }
+            this.set_vel(this.get_vel().times(FRICTION_VEL_LOSS));
 
-        let dl = this.vel.times(dt);
-        this.loc = this.loc.plus(dl);
-        this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
-        this.set_vel(this.get_vel().times(FRICTION_VEL_LOSS));
-
-        if (this.vel.norm() < 0.25) {
-            this.vel = vec3(0, 0, 0);
-        }
-
-        // Check for pocket:
-        for (const pocket_loc of POCKET_LOCS) {
-            let dist_vec = this.loc.minus(pocket_loc);
-            if (dist_vec.dot(dist_vec) < 4) {
-                this.pocket = pocket_loc;
+            if (this.vel.norm() < 0.25) {
+                this.vel = vec3(0, 0, 0);
             }
-        }
 
-        // Ensure ball is within bounds:
-        const SOUND_DIV_FACTOR = 30;
-        if (this.loc[0] < TABLE_MIN_X + BALL_RADIUS || this.loc[0] > TABLE_MAX_X - BALL_RADIUS) {
-            this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
-            this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
-            let intensity = Math.min(1, Math.abs(this.vel[0]) / SOUND_DIV_FACTOR);
-            play_collision_sound(intensity);
-        } else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
-            this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
-            this.loc[1] = this.loc[1] < TABLE_MIN_Y + BALL_RADIUS ? TABLE_MIN_Y + BALL_RADIUS : TABLE_MAX_Y - BALL_RADIUS;
-            let intensity = Math.min(1, Math.abs(this.vel[1]) / SOUND_DIV_FACTOR);
-            play_collision_sound(intensity);
+            // Check for pocket:
+            for (const pocket_loc of POCKET_LOCS) {
+                let dist_vec = this.loc.minus(pocket_loc);
+                if (dist_vec.dot(dist_vec) < 4) {
+                    this.pocket = pocket_loc;
+                }
+            }
+
+            // Ensure ball is within bounds:
+            const SOUND_DIV_FACTOR = 30;
+            if (this.loc[0] < TABLE_MIN_X + BALL_RADIUS || this.loc[0] > TABLE_MAX_X - BALL_RADIUS) {
+                this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
+                this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
+                let intensity = Math.min(1, Math.abs(this.vel[0]) / SOUND_DIV_FACTOR);
+                play_collision_sound(intensity);
+            } else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
+                this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
+                this.loc[1] = this.loc[1] < TABLE_MIN_Y + BALL_RADIUS ? TABLE_MIN_Y + BALL_RADIUS : TABLE_MAX_Y - BALL_RADIUS;
+                let intensity = Math.min(1, Math.abs(this.vel[1]) / SOUND_DIV_FACTOR);
+                play_collision_sound(intensity);
+            }
         }
     }
 

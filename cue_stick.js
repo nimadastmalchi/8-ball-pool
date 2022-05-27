@@ -1,7 +1,7 @@
 import { tiny } from './examples/common.js';
-import { KeyboardState, play_collision_sound } from './game.js';
+import { Keyboard_State, play_collision_sound } from './game.js';
 
-// Import everything
+// Import everything:
 import * as exports from './constants.js';
 Object.entries(exports).forEach(([name, exported]) => window[name] = exported);
 
@@ -44,7 +44,7 @@ export class Cue_Stick {
     }
 
     update_loc() {
-        if ((!KeyboardState.down && this.displacement > BALL_RADIUS) || this.released) {
+        if ((!Keyboard_State.down && this.displacement > BALL_RADIUS) || this.released) {
             if (!this.released) {
                 // First frame in which the cue stick is released.
                 this.final_displacement = this.displacement;
@@ -59,13 +59,13 @@ export class Cue_Stick {
             this.displacement -= this.final_displacement * 0.1;
         } else {
             // Cue stick has not been released.
-            if (KeyboardState.left) {
+            if (Keyboard_State.left) {
                 this.angle -= 0.005;
             }
-            if (KeyboardState.right) {
+            if (Keyboard_State.right) {
                 this.angle += 0.005;
             }
-            if (KeyboardState.down) {
+            if (Keyboard_State.down) {
                 this.displacement += 0.1;
             }
         }
