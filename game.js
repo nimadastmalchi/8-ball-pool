@@ -24,6 +24,11 @@ export class GameState {
     static choose_cue_ball = false;
 }
 
+export function play_collision_sound() {
+    let sound = new Audio('./assets/ball-hit.mp3');
+    sound.play();
+}
+
 export class Game {
     constructor() {
         this.colors = ["#FF0000", "#FF0000", "#00FF00", "#00FF00", "#0000FF", "#0000FF", "#FFFF00", "#FFFF00", "#FFA500", "#FFA500", "#A020F0", "#A020F0", "#67001A", "#67001A", "#000000"];
@@ -214,6 +219,8 @@ export class Game {
                 let dist_vec = loc1.minus(loc2);
                 let dist = dist_vec.norm();
                 if (dist <= 2 * BALL_RADIUS) {
+                    play_collision_sound();
+
                     let revert = dist_vec.times((2 * BALL_RADIUS - dist) / dist);
                     this.balls[i].set_loc(loc1.plus(revert.times(1 / 2)));
                     this.balls[j].set_loc(loc2.minus(revert.times(1 / 2)));

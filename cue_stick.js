@@ -1,5 +1,5 @@
 import { tiny } from './examples/common.js';
-import { KeyboardState } from './game.js';
+import { KeyboardState, play_collision_sound } from './game.js';
 
 // Import everything
 import * as exports from './constants.js';
@@ -51,6 +51,7 @@ export class Cue_Stick {
                 this.released = true;
             }
             if (this.displacement <= 0) {
+                play_collision_sound();
                 this.released = false;
                 this.displacement = BALL_RADIUS;
                 return vec3(Math.sin(-this.angle), Math.cos(-this.angle), 0).times(5 * this.final_displacement);
