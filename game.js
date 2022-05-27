@@ -21,7 +21,6 @@ export class Keyboard_State {
 
 export class Game_State {
     static turn = 0;
-    static place_cue_ball = false;
     // Added:
     static solid = null;
     static played_turn = false;
@@ -52,6 +51,8 @@ export class Game {
         this.cue_stick = new Cue_Stick(vec3(0, -20, 0));
 
         this.stopped = true;
+
+        this.place_cue_ball = false;
     }
 
     make_odd_layer(y, n) {
@@ -104,7 +105,7 @@ export class Game {
 
     get_cam_matrix() {
         let default_cam_loc = Mat4.rotation(-Math.PI / 2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
-        if (!Keyboard_State.fpv || Game_State.place_cue_ball) {
+        if (!Keyboard_State.fpv || this.place_cue_ball) {
             return default_cam_loc;
         }
         else {
@@ -127,17 +128,16 @@ export class Game {
     }
 
     update(dt) {
-        if (Game_State.place_cue_ball) {
+        if (this.place_cue_ball) {
             let cue_ball_loc = this.cue_ball.get_loc();
 
-            // TODO: Ensure cue ball is not colliding with other balls
             if (Keyboard_State.apply) {
                 if (this.cue_ball_collides()) {
                     console.log('Choose another location');
                     return;
                 }
 
-                Game_State.place_cue_ball = false;
+                this.place_cue_ball = false;
                 this.cue_stick.set_loc(cue_ball_loc);
                 let angle = Math.atan(-cue_ball_loc[0] / cue_ball_loc[1]);
                 if (cue_ball_loc[1] > 0) {
@@ -183,7 +183,7 @@ export class Game {
                     this.cue_ball.set_loc(vec3(0, -20, 0));
                     this.cue_ball.set_pocket(null);
                     this.cue_ball.set_visibility(true);
-                    Game_State.place_cue_ball = true;
+                    this.place_cue_ball = true;
                     Game_State.turn ^= 1;
                 }
 
@@ -253,7 +253,7 @@ export class Game {
                 ball.draw(context, program_state);
             }
         }
-        if (this.stopped && !Game_State.place_cue_ball) {
+        if (this.stopped && !this.place_cue_ball) {
             this.cue_stick.draw(context, program_state);
         }
         this.make_railings(context, program_state);
