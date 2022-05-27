@@ -51,7 +51,7 @@ export class Cue_Stick {
                 this.released = true;
             }
             if (this.displacement <= 0) {
-                play_collision_sound();
+                play_collision_sound(Math.min(1, this.final_displacement / 50));
                 this.released = false;
                 this.displacement = BALL_RADIUS;
                 return vec3(Math.sin(-this.angle), Math.cos(-this.angle), 0).times(5 * this.final_displacement);

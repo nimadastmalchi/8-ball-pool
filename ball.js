@@ -1,4 +1,5 @@
 import { tiny } from './examples/common.js';
+import { play_collision_sound } from './game.js';
 
 const {
     vec3, Mat4
@@ -85,12 +86,17 @@ export class Ball {
         }
 
         // Ensure ball is within bounds:
+        const SOUND_DIV_FACTOR = 30;
         if (this.loc[0] < TABLE_MIN_X + BALL_RADIUS || this.loc[0] > TABLE_MAX_X - BALL_RADIUS) {
             this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
             this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
+            let intensity = Math.min(1, Math.abs(this.vel[0]) / SOUND_DIV_FACTOR);
+            play_collision_sound(intensity);
         } else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
             this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
             this.loc[1] = this.loc[1] < TABLE_MIN_Y + BALL_RADIUS ? TABLE_MIN_Y + BALL_RADIUS : TABLE_MAX_Y - BALL_RADIUS;
+            let intensity = Math.min(1, Math.abs(this.vel[1]) / SOUND_DIV_FACTOR);
+            play_collision_sound(intensity);
         }
     }
 
