@@ -19,16 +19,6 @@ export class Keyboard_State {
     static fpv = false;
 }
 
-export class Game_State {
-    static turn = 0;
-    // Added:
-    static solid = null;
-    static played_turn = false;
-    static solid_ball_pocketed = false;
-    static striped_ball_pockted = false;
-    static finished = false;
-}
-
 export function play_collision_sound(intensity) {
     let sound = new Audio('./assets/ball-hit.mp3');
     sound.volume = intensity;
@@ -37,7 +27,8 @@ export function play_collision_sound(intensity) {
 
 export class Game {
     constructor() {
-        this.colors = ["#FF0000", "#FF0000", "#00FF00", "#00FF00", "#0000FF", "#0000FF", "#FFFF00", "#FFFF00", "#FFA500", "#FFA500", "#A020F0", "#A020F0", "#67001A", "#67001A", "#000000"];
+        this.colors = ["#FF0000", "#808080", "#00FF00", "#808080", "#0000FF", "#808080", "#FFFF00", "#808080", "#FFA500", "#808080", "#A020F0", "#808080", "#67001A", "#808080", "#000000"];
+        this.solids = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, null];
         this.balls = [];
         this.balls = this.balls.concat(this.make_odd_layer(0, 1));
         this.balls = this.balls.concat(this.make_even_layer(2, 2));
@@ -45,38 +36,47 @@ export class Game {
         this.balls = this.balls.concat(this.make_even_layer(6, 4));
         this.balls = this.balls.concat(this.make_odd_layer(8, 5));
 
-        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), false);
+        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), null);
         this.balls.push(this.cue_ball);
 
         this.cue_stick = new Cue_Stick(vec3(0, -20, 0));
 
         this.stopped = true;
 
+        this.turn = 0;
+        this.solid = null;
+        this.first_turn = true;
+        this.solid_ball_pocketed = false;
+        this.striped_ball_pockted = false;
+        this.finished = false;
         this.place_cue_ball = false;
     }
 
     make_odd_layer(y, n) {
         let balls = [];
-        let color_index = Math.floor(Math.random() * this.colors.length);
-        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
-        this.colors.splice(color_index, 1);
+        let index = Math.floor(Math.random() * this.colors.length);
+        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
+        this.colors.splice(index, 1);
+        this.solids.splice(index, 1);
         --n;
 
         let num_on_left = n / 2;
         let i = 1;
         while (num_on_left > 0) {
-            color_index = Math.floor(Math.random() * this.colors.length);
-            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
-            this.colors.splice(color_index, 1);
+            index = Math.floor(Math.random() * this.colors.length);
+            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
+            this.colors.splice(index, 1);
+            this.solids.splice(index, 1);
             --num_on_left;
         }
 
         let num_on_right = n / 2;
         i = 1;
         while (num_on_right > 0) {
-            color_index = Math.floor(Math.random() * this.colors.length);
-            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
-            this.colors.splice(color_index, 1);
+            index = Math.floor(Math.random() * this.colors.length);
+            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
+            this.colors.splice(index, 1);
+            this.solids.splice(index, 1);
             --num_on_right;
         }
 
@@ -87,9 +87,10 @@ export class Game {
         let balls = [];
         let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n / 2.0 - 1) * BALL_INIT_SPACE + BALL_INIT_SPACE / 2.0;
         while (n > 0) {
-            let color_index = Math.floor(Math.random() * this.colors.length);
-            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color(this.colors[color_index]), false));
-            this.colors.splice(color_index, 1);
+            let index = Math.floor(Math.random() * this.colors.length);
+            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
+            this.colors.splice(index, 1);
+            this.solids.splice(index, 1);
             x -= 2 * BALL_RADIUS + BALL_INIT_SPACE;
             --n;
         }
@@ -108,14 +109,10 @@ export class Game {
         if (!Keyboard_State.fpv || this.place_cue_ball) {
             return default_cam_loc;
         }
-        else {
-            if (!this.stopped) {
-                return default_cam_loc;
-            }
-            else {
-                return this.cue_stick.get_cam_matrix();
-            }
+        if (!this.stopped) {
+            return default_cam_loc;
         }
+        return this.cue_stick.get_cam_matrix();
     }
 
     all_balls_stopped() {
@@ -163,6 +160,7 @@ export class Game {
             }
         }
         else if (this.stopped) {
+            // All balls are stopped.
             let vel = this.cue_stick.update_loc();
             if (vel != null) {
                 // The cue stick has hit the cue ball.
@@ -171,12 +169,55 @@ export class Game {
             }
         }
         else {
+            // Balls are moving.
             this.apply_collsion();
             for (let i = 0; i < this.balls.length; ++i) {
                 this.balls[i].update_loc(dt);
             }
+            for (let i = 0; i < this.balls.length; ++i) {
+                if (this.balls[i].is_visible() && this.balls[i].get_pocket() != null) {
+                    // Ball was just pocketed.
+                    if (this.balls[i] === this.cue_ball) {
+                        // Ignore the cue ball.
+                        continue;
+                    }
+                    // If roles still need to be assigned:
+                    if (!this.first_turn && this.solid === null) {
+                        this.solid = this.balls[i].is_solid() ? this.turn : this.turn ^ 1;
+                    }
+                    // Indicate which type of ball has been pocketed:
+                    if (this.balls[i].is_solid() === null) {
+                        this.finished = true;
+                    }
+                    else if (this.balls[i].is_solid()) {
+                        this.solid_ball_pocketed = true;
+                    }
+                    else {
+                        this.striped_ball_pocketed = true;
+                    }
+                }
+            }
             if (this.all_balls_stopped()) {
+                // Balls just stopped.
                 this.stopped = true;
+
+                let changed_turns = false;
+                // Check whether a ball has been pocketed:
+                if (this.first_turn) {
+                    if (!this.solid_ball_pocketed && !this.striped_ball_pocketed) {
+                        changed_turns = true;
+                        this.turn ^= 1;
+                    }
+                }
+                else if ((this.solid_ball_pocketed && this.turn != this.solid) ||
+                         (this.striped_ball_pocketed && this.turn == this.solid) ||
+                         (!this.solid_ball_pocketed && !this.striped_ball_pocketed)) {
+                    changed_turns = true;
+                    this.turn ^= 1;
+                }
+
+                this.solid_ball_pocketed = false;
+                this.striped_ball_pocketed = false;
 
                 // Set new cue ball location:
                 if (!this.cue_ball.is_visible()) {
@@ -184,7 +225,9 @@ export class Game {
                     this.cue_ball.set_pocket(null);
                     this.cue_ball.set_visibility(true);
                     this.place_cue_ball = true;
-                    Game_State.turn ^= 1;
+                    if (!changed_turns) {
+                        this.turn ^= 1;
+                    }
                 }
 
                 // Set new cue stick location:
@@ -195,6 +238,10 @@ export class Game {
                     angle += Math.PI;
                 }
                 this.cue_stick.set_angle(angle);
+
+                if (this.first_turn) {
+                    this.first_turn = false;
+                }
             }
         }
     }
@@ -236,7 +283,7 @@ export class Game {
                     this.balls[i].set_vel(old_vel1.minus(loc1.minus(loc2).times(old_vel1.minus(old_vel2).dot(loc1.minus(loc2)) / dist ** 2)).times(COLLISION_VEL_LOSS));
                     this.balls[j].set_vel(old_vel2.minus(loc2.minus(loc1).times(old_vel2.minus(old_vel1).dot(loc2.minus(loc1)) / dist ** 2)).times(COLLISION_VEL_LOSS)); 
 
-                    // Play sound
+                    // Play sound:
                     const SOUND_DIV_FACTOR = 50;
                     let intensity = Math.min(1, Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist) / SOUND_DIV_FACTOR);
                     play_collision_sound(intensity);
@@ -254,7 +301,12 @@ export class Game {
             }
         }
         if (this.stopped && !this.place_cue_ball) {
-            this.cue_stick.draw(context, program_state);
+            if (this.turn) {
+                this.cue_stick.draw(context, program_state, STICK_MATERIAL_1);
+            }
+            else {
+                this.cue_stick.draw(context, program_state, STICK_MATERIAL_0);
+            }
         }
         this.make_railings(context, program_state);
     }

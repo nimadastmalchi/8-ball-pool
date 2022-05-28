@@ -57,7 +57,8 @@ export class Cue_Stick {
                 return vec3(Math.sin(-this.angle), Math.cos(-this.angle), 0).times(5 * this.final_displacement);
             }
             this.displacement -= this.final_displacement * 0.1;
-        } else {
+        }
+        else {
             // Cue stick has not been released.
             if (Keyboard_State.left) {
                 this.angle -= 0.005;
@@ -78,7 +79,7 @@ export class Cue_Stick {
         return null;
     }
 
-    draw(context, program_state) {
-        STICK_SHAPE.draw(context, program_state, this.model_transform, STICK_MATERIAL);
+    draw(context, program_state, material) {
+        STICK_SHAPE.draw(context, program_state, this.model_transform, material);
     }
 }

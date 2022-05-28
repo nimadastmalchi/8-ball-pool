@@ -24,6 +24,14 @@ export class Ball {
         return this.vel;
     }
 
+    get_pocket() {
+        return this.pocket;
+    }
+
+    is_solid() {
+        return this.solid;
+    }
+
     is_stopped() {
         return this.vel.equals(vec3(0, 0, 0));
     }
@@ -50,11 +58,14 @@ export class Ball {
 
     update_loc(dt) {
         if (this.pocket != null) {
+            // Ball has been pocketed.
             if (this.loc[2] < -2) {
+                // Ball has finished sliding into the pocket.
                 this.set_vel(vec3(0, 0, 0));
                 this.visible = false;
             }
             else {
+                // Ball is sliding into the pocket.
                 let x_sign = this.vel[0] >= 0 ? 1 : -1;
                 let y_sign = this.vel[1] >= 0 ? 1 : -1;
 
@@ -67,6 +78,7 @@ export class Ball {
             }
         }
         else {
+            // Ball is still on the table.
             let dl = this.vel.times(dt);
             this.loc = this.loc.plus(dl);
             this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
@@ -91,7 +103,8 @@ export class Ball {
                 this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
                 let intensity = Math.min(1, Math.abs(this.vel[0]) / SOUND_DIV_FACTOR);
                 play_collision_sound(intensity);
-            } else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
+            }
+            else if (this.loc[1] < TABLE_MIN_Y + BALL_RADIUS || this.loc[1] > TABLE_MAX_Y - BALL_RADIUS) {
                 this.vel = vec3(this.vel[0], -this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
                 this.loc[1] = this.loc[1] < TABLE_MIN_Y + BALL_RADIUS ? TABLE_MIN_Y + BALL_RADIUS : TABLE_MAX_Y - BALL_RADIUS;
                 let intensity = Math.min(1, Math.abs(this.vel[1]) / SOUND_DIV_FACTOR);
