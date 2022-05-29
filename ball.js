@@ -13,7 +13,7 @@ export class Ball {
         this.vel = init_vel;
         this.solid = solid;
         this.texture = texture;
-        this.texture_displacement = [ Math.random(), Math.random() ]
+        this.texture_displacement = [ 0.0, 0.0 ];
         this.pocket = null;
         this.visible = true;
     }
@@ -67,9 +67,7 @@ export class Ball {
                 this.visible = false;
             } else if (this.vel[2] == 0) {
                 // Ball was just pocketed.
-                let x_sign = (this.pocket[0] > 0) - (this.pocket[0] < 0);
-                let y_sign = (this.pocket[1] > 0) - (this.pocket[1] < 0);
-                this.vel = vec3(x_sign, y_sign, -1).times(20);
+                this.vel = vec3(this.pocket[0], this.pocket[1], -2).minus(this.loc).times(10);
             } else {
                 // Ball is sliding into the pocket.
                 let dl = this.vel.times(dt);
@@ -115,7 +113,7 @@ export class Ball {
 
     draw(context, program_state) {
         this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]).times(Mat4.rotation(-Math.PI / 2, 0, 1, 0));
-        this.texture_displacement = [this.texture_displacement[0] - this.vel[0]/700, this.texture_displacement[1] - this.vel[1]/700]
+        this.texture_displacement = [this.texture_displacement[0] - this.vel[0]/700, this.texture_displacement[1] - this.vel[1]/700];
         BALL_SHADER.set_texture_displacement(this.texture_displacement);
         BALL_SHAPE.draw(context, program_state, this.model_transform, BALL_MATERIAL.override({ texture: this.texture }));
     }
