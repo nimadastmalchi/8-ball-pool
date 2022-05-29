@@ -13,6 +13,7 @@ export class Ball {
         this.vel = init_vel;
         this.solid = solid;
         this.texture = texture;
+        this.texture_displacement = [ Math.random(), Math.random() ]
         this.pocket = null;
         this.visible = true;
     }
@@ -113,9 +114,9 @@ export class Ball {
     }
 
     draw(context, program_state) {
-        // Function set_loc() may be called after the update() function, so ensure this.model_transform is up to date:
         this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]).times(Mat4.rotation(-Math.PI / 2, 0, 1, 0));
-        BALL_SHADER.set_vel([this.vel[0], this.vel[1]]);
+        this.texture_displacement = [this.texture_displacement[0] - this.vel[0]/700, this.texture_displacement[1] - this.vel[1]/700]
+        BALL_SHADER.set_texture_displacement(this.texture_displacement);
         BALL_SHAPE.draw(context, program_state, this.model_transform, BALL_MATERIAL.override({ texture: this.texture }));
     }
 }
