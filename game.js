@@ -7,7 +7,7 @@ import * as exports from './constants.js';
 Object.entries(exports).forEach(([name, exported]) => window[name] = exported);
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
 export class Keyboard_State {
@@ -27,8 +27,12 @@ export function play_collision_sound(intensity) {
 
 export class Game {
     constructor() {
-        this.colors = ["#FF0000", "#808080", "#00FF00", "#808080", "#0000FF", "#808080", "#FFFF00", "#808080", "#FFA500", "#808080", "#A020F0", "#808080", "#67001A", "#808080", "#000000"];
-        this.solids = [true, false, true, false, true, false, true, false, true, false, true, false, true, false, null];
+        this.textures = [new Texture("assets/1.png"), new Texture("assets/2.png"), new Texture("assets/3.png"),
+                         new Texture("assets/4.png"), new Texture("assets/5.png"), new Texture("assets/6.png"),
+                         new Texture("assets/7.png"), new Texture("assets/8.png"), new Texture("assets/9.png"),
+                         new Texture("assets/10.png"), new Texture("assets/11.png"), new Texture("assets/12.png"),
+                         new Texture("assets/13.png"), new Texture("assets/14.png"), new Texture("assets/15.png")];
+        this.solids = [true, true, true, true, true, true, true, null, false, false, false, false, false, false, false];
         this.balls = [];
         this.balls = this.balls.concat(this.make_odd_layer(0, 1));
         this.balls = this.balls.concat(this.make_even_layer(2, 2));
@@ -36,7 +40,7 @@ export class Game {
         this.balls = this.balls.concat(this.make_even_layer(6, 4));
         this.balls = this.balls.concat(this.make_odd_layer(8, 5));
 
-        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), hex_color("#FFFFFF"), null);
+        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), new Texture("assets/0.png"), null);
         this.balls.push(this.cue_ball);
 
         this.cue_stick = new Cue_Stick(vec3(0, -20, 0));
@@ -54,18 +58,18 @@ export class Game {
 
     make_odd_layer(y, n) {
         let balls = [];
-        let index = Math.floor(Math.random() * this.colors.length);
-        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
-        this.colors.splice(index, 1);
+        let index = Math.floor(Math.random() * this.textures.length);
+        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+        this.textures.splice(index, 1);
         this.solids.splice(index, 1);
         --n;
 
         let num_on_left = n / 2;
         let i = 1;
         while (num_on_left > 0) {
-            index = Math.floor(Math.random() * this.colors.length);
-            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
-            this.colors.splice(index, 1);
+            index = Math.floor(Math.random() * this.textures.length);
+            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            this.textures.splice(index, 1);
             this.solids.splice(index, 1);
             --num_on_left;
         }
@@ -73,9 +77,9 @@ export class Game {
         let num_on_right = n / 2;
         i = 1;
         while (num_on_right > 0) {
-            index = Math.floor(Math.random() * this.colors.length);
-            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
-            this.colors.splice(index, 1);
+            index = Math.floor(Math.random() * this.textures.length);
+            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            this.textures.splice(index, 1);
             this.solids.splice(index, 1);
             --num_on_right;
         }
@@ -87,9 +91,9 @@ export class Game {
         let balls = [];
         let x = (n / 2.0) * 2 * BALL_RADIUS - BALL_RADIUS + (n / 2.0 - 1) * BALL_INIT_SPACE + BALL_INIT_SPACE / 2.0;
         while (n > 0) {
-            let index = Math.floor(Math.random() * this.colors.length);
-            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), hex_color(this.colors[index]), this.solids[index]));
-            this.colors.splice(index, 1);
+            let index = Math.floor(Math.random() * this.textures.length);
+            balls.push(new Ball(vec3(x, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            this.textures.splice(index, 1);
             this.solids.splice(index, 1);
             x -= 2 * BALL_RADIUS + BALL_INIT_SPACE;
             --n;

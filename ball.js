@@ -6,12 +6,12 @@ const {
 } = tiny;
 
 export class Ball {
-    constructor(init_loc, init_vel, color, solid) {
+    constructor(init_loc, init_vel, texture, solid) {
         this.model_transform = Mat4.translation(init_loc[0], init_loc[1], init_loc[2]).times(Mat4.scale(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS));
         this.loc = init_loc;
         this.vel = init_vel;
         this.solid = solid;
-        this.color = color;
+        this.texture = texture;
         this.pocket = null;
         this.visible = true;
     }
@@ -115,7 +115,7 @@ export class Ball {
 
     draw(context, program_state) {
         // Function set_loc() may be called after the update() function, so ensure this.model_transform is up to date:
-        this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
-        BALL_SHAPE.draw(context, program_state, this.model_transform, BALL_MATERIAL.override({ color: this.color }));
+        this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]).times(Mat4.rotation(-Math.PI / 2, 0, 1, 0));
+        BALL_SHAPE.draw(context, program_state, this.model_transform, BALL_MATERIAL.override({ texture: this.texture }));
     }
 }
