@@ -19,7 +19,7 @@ class Table_Phong extends defs.Phong_Shader {
                      distance( vec2( -19.0, -39.0 ), vertex_worldspace.xy ) <= 2.0 ||
                      distance( vec2( 19.0, 39.0 ), vertex_worldspace.xy ) <= 2.0 ||
                      distance( vec2( 19.0, -39.0 ), vertex_worldspace.xy ) <= 2.0 ) {
-                     gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
+                    gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
                 }
             } `;
     }

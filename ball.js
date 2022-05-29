@@ -63,15 +63,13 @@ export class Ball {
                 // Ball has finished sliding into the pocket.
                 this.set_vel(vec3(0, 0, 0));
                 this.visible = false;
-            }
-            else {
+            } else if (this.vel[2] == 0) {
+                // Ball was just pocketed.
+                let x_sign = (this.pocket[0] > 0) - (this.pocket[0] < 0);
+                let y_sign = (this.pocket[1] > 0) - (this.pocket[1] < 0);
+                this.vel = vec3(x_sign, y_sign, -1).times(20);
+            } else {
                 // Ball is sliding into the pocket.
-                let x_sign = this.vel[0] >= 0 ? 1 : -1;
-                let y_sign = this.vel[1] >= 0 ? 1 : -1;
-
-                let vel_dir = this.pocket.plus(vec3(x_sign * 6, y_sign * 6, -10)).minus(this.loc).normalized();
-                this.set_vel(vel_dir.times(20));
-
                 let dl = this.vel.times(dt);
                 this.loc = this.loc.plus(dl);
                 this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
@@ -97,7 +95,7 @@ export class Ball {
             }
 
             // Ensure ball is within bounds:
-            const SOUND_DIV_FACTOR = 30;
+            const SOUND_DIV_FACTOR = 60;
             if (this.loc[0] < TABLE_MIN_X + BALL_RADIUS || this.loc[0] > TABLE_MAX_X - BALL_RADIUS) {
                 this.vel = vec3(-this.vel[0], this.vel[1], this.vel[2]).times(COLLISION_VEL_LOSS);
                 this.loc[0] = this.loc[0] < TABLE_MIN_X + BALL_RADIUS ? TABLE_MIN_X + BALL_RADIUS : TABLE_MAX_X - BALL_RADIUS;
