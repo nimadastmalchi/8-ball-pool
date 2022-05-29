@@ -1,34 +1,15 @@
 import { defs, tiny } from './examples/common.js';
+import { Table_Phong, Ball_Phong } from './shaders.js';
 
 const {
     vec, vec3, hex_color, Material
 } = tiny;
 
-class Table_Phong extends defs.Phong_Shader {
-    fragment_glsl_code() {
-        return this.shared_glsl_code() + `
-            void main() {
-                // Compute an initial (ambient) color:
-                gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
-                // Compute the final color with contributions from lights:
-                gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
-                // Check whether the fragment is in a pocket:
-                if ( distance( vec2( -20.0, 0.0 ), vertex_worldspace.xy ) <= 2.0 ||
-                     distance( vec2( 20.0, 0.0 ), vertex_worldspace.xy ) <= 2.0 ||
-                     distance( vec2( -19.0, 39.0 ), vertex_worldspace.xy ) <= 2.0 ||
-                     distance( vec2( -19.0, -39.0 ), vertex_worldspace.xy ) <= 2.0 ||
-                     distance( vec2( 19.0, 39.0 ), vertex_worldspace.xy ) <= 2.0 ||
-                     distance( vec2( 19.0, -39.0 ), vertex_worldspace.xy ) <= 2.0 ) {
-                    gl_FragColor = vec4( 0.0, 0.0, 0.0, 0.0 );
-                }
-            } `;
-    }
-}
-
 export const BALL_RADIUS = 1;
 export const BALL_INIT_SPACE = 0.2;
 export const BALL_SHAPE = new defs.Subdivision_Sphere(8);
-export const BALL_MATERIAL = new Material(new defs.Textured_Phong(), { ambient: 1, diffusivity: 0.5, specularity: 0.2 });
+export const BALL_SHADER = new Ball_Phong();
+export const BALL_MATERIAL = new Material(BALL_SHADER, { ambient: 1, diffusivity: 0.5, specularity: 0.2 });
 
 export const STICK_LENGTH = 40;
 export const STICK_WIDTH = 0.25;
