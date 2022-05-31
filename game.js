@@ -269,6 +269,9 @@ export class Game {
     apply_collsion() {
         let ret_val = false;
         for (let i = 0; i < this.balls.length; ++i) {
+            if (this.balls[i].get_pocket() != null) {
+                continue;
+            }
             for (let j = i + 1; j < this.balls.length; ++j) {
                 ret_val = true;
 
