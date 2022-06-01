@@ -8,8 +8,7 @@ const {
 export const BALL_RADIUS = 1;
 export const BALL_INIT_SPACE = 0.2;
 export const BALL_SHAPE = new defs.Subdivision_Sphere(8);
-export const BALL_SHADER = new Ball_Phong();
-export const BALL_MATERIAL = new Material(BALL_SHADER, { ambient: 1, diffusivity: 0.5, specularity: 0.2 });
+export const BALL_MATERIAL = new Material(new defs.Textured_Phong(), { ambient: 1, diffusivity: 0.5, specularity: 0.2 });
 
 export const STICK_LENGTH = 40;
 export const STICK_WIDTH = 0.25;

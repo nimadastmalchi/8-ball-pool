@@ -43,7 +43,8 @@ export class Ball_Phong extends defs.Textured_Phong {
             uniform float speed;
             uniform vec2 texture_displacement;
             void main() {
-                vec2 new_f_tex_coord = vec2( f_tex_coord.x + texture_displacement[0], f_tex_coord.y + texture_displacement[1] );
+                vec2 new_f_tex_coord = vec2( f_tex_coord.x + mod( texture_displacement[0], 1.0 ),
+                                             f_tex_coord.y + mod( texture_displacement[1], 1.0 ) );
                 vec4 tex_color = texture2D( texture, new_f_tex_coord );
                 if ( tex_color.w < .01 ) discard;
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 

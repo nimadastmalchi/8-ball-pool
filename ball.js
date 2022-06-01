@@ -1,4 +1,3 @@
-import { BALL_SHADER } from './constants.js';
 import { tiny } from './examples/common.js';
 import { play_collision_sound } from './game.js';
 
@@ -8,14 +7,13 @@ const {
 
 export class Ball {
     constructor(init_loc, init_vel, texture, solid) {
-        this.model_transform = Mat4.translation(init_loc[0], init_loc[1], init_loc[2]).times(Mat4.scale(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS));
         this.loc = init_loc;
         this.vel = init_vel;
         this.solid = solid;
         this.texture = texture;
-        this.texture_displacement = [ 0.0, 0.0 ];
         this.pocket = null;
         this.visible = true;
+        this.rotation_transform = Mat4.rotation(-Math.PI / 2, 0, 1, 0);
     }
 
     get_loc() {
@@ -72,14 +70,12 @@ export class Ball {
                 // Ball is sliding into the pocket.
                 let dl = this.vel.times(dt);
                 this.loc = this.loc.plus(dl);
-                this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
             }
         }
         else {
             // Ball is still on the table.
             let dl = this.vel.times(dt);
             this.loc = this.loc.plus(dl);
-            this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]);
             this.set_vel(this.get_vel().times(FRICTION_VEL_LOSS));
 
             if (this.vel.norm() < 0.25) {
@@ -112,9 +108,10 @@ export class Ball {
     }
 
     draw(context, program_state) {
-        this.model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]).times(Mat4.rotation(-Math.PI / 2, 0, 1, 0));
-        this.texture_displacement = [this.texture_displacement[0] - this.vel[0] / 700, this.texture_displacement[1] - this.vel[1] / 700];
-        BALL_SHADER.set_texture_displacement(this.texture_displacement);
-        BALL_SHAPE.draw(context, program_state, this.model_transform, BALL_MATERIAL.override({ texture: this.texture }));
+        if (this.vel.norm() != 0) {
+            this.rotation_transform = this.rotation_transform.times(Mat4.rotation(-this.vel.norm() / 70.0, this.vel[1], -this.vel[0], 0));
+        }
+        let model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]).times(this.rotation_transform);
+        BALL_SHAPE.draw(context, program_state, model_transform, BALL_MATERIAL.override({ texture: this.texture }));
     }
 }
