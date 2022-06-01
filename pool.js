@@ -15,21 +15,16 @@ export class Pool extends Scene {
     }
 
     make_control_panel() {
-        this.key_triggered_button("Left", ["h"], () => Keyboard_State.left = true, undefined, () => Keyboard_State.left = false);
-        this.key_triggered_button("Right", ["l"], () => Keyboard_State.right = true, undefined, () => Keyboard_State.right = false);
-        this.key_triggered_button("Down / Power", ["j"], () => Keyboard_State.down = true, undefined, () => Keyboard_State.down = false);
-        this.key_triggered_button("Up", ["k"], () => Keyboard_State.up = true, undefined, () => Keyboard_State.up = false);
-        this.key_triggered_button("Apply", ["a"], () => Keyboard_State.apply = true, undefined, () => Keyboard_State.apply = false);
+        this.key_triggered_button("Left", ["a"], () => Keyboard_State.left = true, undefined, () => Keyboard_State.left = false);
+        this.key_triggered_button("Right", ["d"], () => Keyboard_State.right = true, undefined, () => Keyboard_State.right = false);
+        this.key_triggered_button("Down / Power", ["s"], () => Keyboard_State.down = true, undefined, () => Keyboard_State.down = false);
+        this.key_triggered_button("Up", ["w"], () => Keyboard_State.up = true, undefined, () => Keyboard_State.up = false);
+        this.key_triggered_button("Apply", ["q"], () => Keyboard_State.apply = true, undefined, () => Keyboard_State.apply = false);
         this.key_triggered_button("Toggle FPV", ["v"], () => Keyboard_State.fpv ^= 1);
         this.key_triggered_button("Restart", ["r"], () => this.game = new Game());
     }
 
     display(context, program_state) {
-        if (!context.scratchpad.controls) {
-            this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
-            // program_state.set_camera(this.initial_camera_location.times(Mat4.rotation(-Math.PI / 2, 0, 0, 1)));
-            program_state.set_camera(this.game.get_cam_matrix());
-        }
         program_state.set_camera(this.game.get_cam_matrix());
 
         program_state.projection_transform = Mat4.perspective(
