@@ -291,8 +291,8 @@ export class Game {
                     this.balls[j].set_vel(old_vel2.minus(loc2.minus(loc1).times(old_vel2.minus(old_vel1).dot(loc2.minus(loc1)) / dist ** 2)).times(COLLISION_VEL_LOSS)); 
 
                     // Play sound:
-                    const SOUND_DIV_FACTOR = 50;
-                    let intensity = Math.min(1, Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist) / SOUND_DIV_FACTOR);
+                    const SOUND_DIV_FACTOR = 20;
+                    let intensity = Math.min(1, (Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist)) / SOUND_DIV_FACTOR);
                     play_collision_sound(intensity);
                 }
             }
