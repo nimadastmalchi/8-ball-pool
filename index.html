@@ -26,11 +26,10 @@
     // This line creates your scene.
     new Canvas_Widget(element_to_replace, scenes, { show_explanation: false, make_code_nav: false });
 
-    const game = scenes[0].game;
     let variables = setInterval(() => {
-        document.getElementById('turn').innerHTML = game.turn;
-        if (game.solid != null) {
-            document.getElementById('solid').innerHTML = game.solid;
+        document.getElementById('turn').innerHTML = scenes[0].game.turn;
+        if (scenes[0].game.solid != null) {
+            document.getElementById('solid').innerHTML = scenes[0].game.solid;
         } else {
             document.getElementById('solid').innerHTML = 'TBD';
         }
