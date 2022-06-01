@@ -1,5 +1,5 @@
 import { defs, tiny } from './examples/common.js';
-import { Table_Phong, Ball_Phong } from './shaders.js';
+import { Table_Phong } from './shaders.js';
 
 const {
     vec, vec3, hex_color, Material
