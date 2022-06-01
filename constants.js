@@ -1,8 +1,8 @@
 import { defs, tiny } from './examples/common.js';
-import { Table_Phong } from './shaders.js';
+import { Table_Phong, Railing_Phong } from './shaders.js';
 
 const {
-    vec, vec3, hex_color, Material
+    vec, vec3, hex_color, Material, Texture
 } = tiny;
 
 export const BALL_RADIUS = 1;
@@ -20,7 +20,7 @@ export const TABLE_SHAPE = new defs.Cube();
 export const TABLE_MATERIAL = new Material(new Table_Phong(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#014220") });
 
 export const RAILING_SHAPE = new defs.Cube();
-export const RAILING_MATERIAL = new Material(new Table_Phong(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#654321") });
+export const RAILING_MATERIAL = new Material(new Railing_Phong(), { ambient: 0.2, diffusivity: 1, specularity: 0, color: hex_color("#654321"), texture: new Texture("assets/wood.jpg") });
 
 export const COLLISION_VEL_LOSS = 0.95;
 export const FRICTION_VEL_LOSS = 0.9925;
