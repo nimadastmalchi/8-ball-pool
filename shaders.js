@@ -39,7 +39,6 @@ export class Railing_Phong extends defs.Textured_Phong {
                     tex_color = vec4( 0.0, 0.0, 0.0, 0.0 );
                 }
 
-                if( tex_color.w < .01 ) discard;
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
                 gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
             }
