@@ -109,7 +109,7 @@ export class Ball {
 
     draw(context, program_state) {
         if (this.vel.norm() != 0) {
-            this.rotation_transform = Mat4.rotation(this.vel.norm() / 62.8, -this.vel[1], this.vel[0], 0).times(this.rotation_transform);
+            this.rotation_transform = Mat4.rotation(this.vel.norm() / 100.0, -this.vel[1], this.vel[0], 0).times(this.rotation_transform);
         }
         let model_transform = Mat4.translation(this.loc[0], this.loc[1], this.loc[2]).times(this.rotation_transform);
         BALL_SHAPE.draw(context, program_state, model_transform, BALL_MATERIAL.override({ texture: this.texture }));
