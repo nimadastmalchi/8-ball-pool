@@ -29,16 +29,17 @@ export class Game {
     constructor() {
         this.textures = [new Texture("assets/1.png"), new Texture("assets/2.png"), new Texture("assets/3.png"),
                          new Texture("assets/4.png"), new Texture("assets/5.png"), new Texture("assets/6.png"),
-                         new Texture("assets/7.png"), new Texture("assets/8.png"), new Texture("assets/9.png"),
+                         new Texture("assets/7.png"), new Texture("assets/9.png"),
                          new Texture("assets/10.png"), new Texture("assets/11.png"), new Texture("assets/12.png"),
                          new Texture("assets/13.png"), new Texture("assets/14.png"), new Texture("assets/15.png")];
-        this.solids = [true, true, true, true, true, true, true, null, false, false, false, false, false, false, false];
+        this.solids = [true, true, true, true, true, true, true, false, false, false, false, false, false, false];
         this.balls = [];
-        this.balls = this.balls.concat(this.make_odd_layer(0, 1));
-        this.balls = this.balls.concat(this.make_even_layer(2, 2));
-        this.balls = this.balls.concat(this.make_odd_layer(4, 3));
-        this.balls = this.balls.concat(this.make_even_layer(6, 4));
-        this.balls = this.balls.concat(this.make_odd_layer(8, 5));
+        let y_loc = 10;
+        this.balls = this.balls.concat(this.make_odd_layer(y_loc + 0, 1));
+        this.balls = this.balls.concat(this.make_even_layer(y_loc + 2, 2));
+        this.balls = this.balls.concat(this.make_odd_layer(y_loc + 4, 3));
+        this.balls = this.balls.concat(this.make_even_layer(y_loc + 6, 4));
+        this.balls = this.balls.concat(this.make_odd_layer(y_loc + 8, 5));
 
         this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), new Texture("assets/0.png"), null);
         this.balls.push(this.cue_ball);
@@ -58,10 +59,16 @@ export class Game {
 
     make_odd_layer(y, n) {
         let balls = [];
-        let index = Math.floor(Math.random() * this.textures.length);
-        balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
-        this.textures.splice(index, 1);
-        this.solids.splice(index, 1);
+        let index = 0;
+        if (n == 3) {
+            this.eight_ball = new Ball(vec3(0, y, 0), vec3(0, 0, 0), new Texture("assets/8.png"), null);
+            balls.push(this.eight_ball);
+        } else {
+            index = Math.floor(Math.random() * this.textures.length);
+            balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            this.textures.splice(index, 1);
+            this.solids.splice(index, 1);
+        }
         --n;
 
         let num_on_left = n / 2;
