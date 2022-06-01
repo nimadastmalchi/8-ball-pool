@@ -13,8 +13,7 @@ export const BALL_MATERIAL = new Material(new defs.Textured_Phong(), { ambient: 
 export const STICK_LENGTH = 40;
 export const STICK_WIDTH = 0.25;
 export const STICK_SHAPE = new defs.Capped_Cylinder(5, 25, [[0, 2], [0, 1]]);
-export const STICK_MATERIAL_0 = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#FF0000") });
-export const STICK_MATERIAL_1 = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#0000FF") });
+export const STICK_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 0.5, diffusivity: .6, color: hex_color("#C4A484") });
 
 export const TABLE_SHAPE = new defs.Cube();
 export const TABLE_MATERIAL = new Material(new Table_Phong(), { ambient: 1, diffusivity: 1, specularity: 0, color: hex_color("#014220") });

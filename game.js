@@ -315,12 +315,7 @@ export class Game {
             }
         }
         if (this.stopped && !this.place_cue_ball) {
-            if (this.turn) {
-                this.cue_stick.draw(context, program_state, STICK_MATERIAL_1);
-            }
-            else {
-                this.cue_stick.draw(context, program_state, STICK_MATERIAL_0);
-            }
+            this.cue_stick.draw(context, program_state, STICK_MATERIAL);
         }
         this.make_railings(context, program_state);
     }
