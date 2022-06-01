@@ -30,7 +30,7 @@
     let variables = setInterval(() => {
         document.getElementById('turn').innerHTML = game.turn;
         if (game.solid != null) {
-            document.getElementById('solid').innerHTML = game.turn == game.solid ? game.turn : game.turn ^ 1;
+            document.getElementById('solid').innerHTML = game.solid;
         } else {
             document.getElementById('solid').innerHTML = 'TBD';
         }
