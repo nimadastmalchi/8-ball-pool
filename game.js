@@ -205,6 +205,10 @@ export class Game {
             let vel = this.cue_stick.update_loc();
             if (vel != null) {
                 // The cue stick has hit the cue ball.
+                if (this.first_turn) {
+                    // Give more power to the first shot:
+                    vel = vel.times(2);
+                }
                 this.cue_ball.set_vel(vel);
                 this.stopped = false;
             }

@@ -66,7 +66,7 @@ export class Cue_Stick {
             if (Keyboard_State.right) {
                 this.angle += 0.005;
             }
-            if (Keyboard_State.down) {
+            if (Keyboard_State.down && this.displacement < 30) {
                 this.displacement += 0.1;
             }
         }
