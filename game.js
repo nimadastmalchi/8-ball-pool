@@ -55,12 +55,15 @@ export class Game {
         this.striped_ball_pockted = false;
         this.finished = false;
         this.place_cue_ball = false;
+
+        this.num_tubed = 0;
+        this.timer = 0;
     }
 
     make_odd_layer(y, n) {
         let balls = [];
         let index = 0;
-        if (n == 3) {
+        if (n === 3) {
             this.eight_ball = new Ball(vec3(0, y, 0), vec3(0, 0, 0), new Texture("assets/8.png"), null);
             balls.push(this.eight_ball);
         } else {
@@ -136,6 +139,33 @@ export class Game {
     }
 
     update(dt) {
+        --this.timer;
+        const TUBE_VEL = 20;
+        for (const ball of this.balls) {
+            if (!ball.is_tubed()) {
+                continue;
+            }
+            if (this.timer <= 0 && ball.get_vel().norm() === 0 && ball.get_loc()[1] < TABLE_MAX_Y) {
+                // Ball starts the tubing process.
+                this.timer = 20;
+                ball.set_loc(vec3(TABLE_MIN_X + 3, TABLE_MAX_Y + 5, -5));
+                ball.set_vel(vec3(0, TUBE_VEL, 0));
+            }
+            else if (ball.get_loc()[1] <= TABLE_MAX_Y + 10) {
+                // Ball is moving right.
+                let dl = ball.get_vel().times(dt);
+                ball.set_loc(ball.get_loc().plus(dl));
+            } else if (ball.get_loc()[0] <= TABLE_MAX_X - 2 * this.num_tubed) {
+                // Ball is moving down.
+                ball.set_vel(vec3(TUBE_VEL, 0, 0));
+                let dl = ball.get_vel().times(dt);
+                ball.set_loc(ball.get_loc().plus(dl));
+            } else if (ball.get_vel().norm() !== 0) {
+                // Ball has reached its final destination.
+                ball.set_vel(vec3(0, 0, 0));
+                this.num_tubed += 1;
+            }
+        }
         if (this.place_cue_ball) {
             let cue_ball_loc = this.cue_ball.get_loc();
 
@@ -193,11 +223,11 @@ export class Game {
                         continue;
                     }
                     // If roles still need to be assigned:
-                    if (!this.first_turn && this.solid === null) {
+                    if (!this.first_turn && this.solid == null) {
                         this.solid = this.balls[i].is_solid() ? this.turn : this.turn ^ 1;
                     }
                     // Indicate which type of ball has been pocketed:
-                    if (this.balls[i].is_solid() === null) {
+                    if (this.balls[i].is_solid() == null) {
                         this.finished = true;
                     }
                     else if (this.balls[i].is_solid()) {
@@ -220,8 +250,8 @@ export class Game {
                         this.turn ^= 1;
                     }
                 }
-                else if ((this.solid_ball_pocketed && this.turn != this.solid) ||
-                         (this.striped_ball_pocketed && this.turn == this.solid) ||
+                else if ((this.solid_ball_pocketed && this.turn !== this.solid) ||
+                         (this.striped_ball_pocketed && this.turn === this.solid) ||
                          (!this.solid_ball_pocketed && !this.striped_ball_pocketed)) {
                     changed_turns = true;
                     this.turn ^= 1;
@@ -310,13 +340,18 @@ export class Game {
     draw(context, program_state) {
         TABLE_SHAPE.draw(context, program_state, Mat4.translation(0, 0, -2).times(Mat4.scale(TABLE_MAX_X, TABLE_MAX_Y, 1)), TABLE_MATERIAL);
         for (const ball of this.balls) {
-            if (ball.is_visible()) {
-                ball.draw(context, program_state);
+            if (!ball.is_visible() && (ball === this.cue_ball || ball === this.eight_ball)) {
+                // Cue and eight balls are not tubed, so don't draw them.
+                continue;
             }
+            ball.draw(context, program_state);
         }
+
         if (this.stopped && !this.place_cue_ball) {
             this.cue_stick.draw(context, program_state, STICK_MATERIAL);
         }
         this.make_railings(context, program_state);
+        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 3, TABLE_MAX_Y + 7, -5).times(Mat4.rotation(Math.PI / 2, 1, 0, 0)).times(Mat4.scale(2, 2, 9)), TUBE_MATERIAL);
+        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 22, TABLE_MAX_Y + 10, -5).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)).times(Mat4.scale(2, 2, 40)), TUBE_MATERIAL);
     }
 }

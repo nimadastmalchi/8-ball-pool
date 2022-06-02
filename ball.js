@@ -1,5 +1,6 @@
 import { tiny } from './examples/common.js';
 import { play_collision_sound } from './game.js';
+import { TABLE_MAX_X, TABLE_MIN_Y } from './constants.js';
 
 const {
     vec3, Mat4
@@ -14,6 +15,7 @@ export class Ball {
         this.pocket = null;
         this.visible = true;
         this.rotation_transform = Mat4.rotation(-Math.PI / 2, 0, 1, 0);
+        this.tubed = false;
     }
 
     get_loc() {
@@ -40,6 +42,10 @@ export class Ball {
         return this.visible;
     }
 
+    is_tubed() {
+        return this.tubed;
+    }
+
     set_loc(new_loc) {
         this.loc = new_loc;
     }
@@ -56,14 +62,24 @@ export class Ball {
         this.visible = new_visibility;
     }
 
+    set_tubed(tubed) {
+        this.tubed = tubed;
+    }
+
     update_loc(dt) {
+        if (this.tubed) {
+            return;
+        }
         if (this.pocket != null) {
             // Ball has been pocketed.
             if (this.loc[2] < -2) {
                 // Ball has finished sliding into the pocket.
                 this.set_vel(vec3(0, 0, 0));
+                if (this.solid != null && this.visible) {
+                    this.tubed = true;
+                }
                 this.visible = false;
-            } else if (this.vel[2] == 0) {
+            } else if (this.vel[2] === 0) {
                 // Ball was just pocketed.
                 this.vel = vec3(this.pocket[0], this.pocket[1], -2).minus(this.loc).times(10);
             } else {
