@@ -66,7 +66,7 @@ export class Game {
     make_odd_layer(y, n) {
         let balls = [];
         let index = 0;
-        if (n == 3) {
+        if (n === 3) {
             this.eight_ball = new Ball(vec3(0, y, 0), vec3(0, 0, 0), new Texture("assets/8.png"), null, false);
             balls.push(this.eight_ball);
         } else {
@@ -169,7 +169,7 @@ export class Game {
         return false;
     }
 
-    apply_collsion() {
+    apply_collision() {
         let ret_val = false;
         for (let i = 0; i < this.balls.length; ++i) {
             if (this.balls[i].get_pocket() != null) {
@@ -198,7 +198,7 @@ export class Game {
                     let intensity = Math.min(1, (Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist)) / SOUND_DIV_FACTOR);
                     play_collision_sound(intensity);
 
-                    if (this.balls[i] === this.cue_ball && !this.hit_solid_ball_first && !this.hit_striped_ball_first) {
+                    if ((this.balls[i] === this.cue_ball || this.balls[j] === this.cue_ball) && !this.hit_solid_ball_first && !this.hit_striped_ball_first) {
                         if (this.balls[j].is_solid() === null) {
                             this.hit_solid_ball_first = true;
                             this.hit_striped_ball_first = true;
@@ -297,7 +297,7 @@ export class Game {
         }
         else {
             // Balls are moving.
-            this.apply_collsion();
+            this.apply_collision();
             for (let ball of this.balls) {
                 ball.update_loc(dt);
             }
