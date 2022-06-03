@@ -408,6 +408,6 @@ export class Game {
         }
         this.make_railings(context, program_state);
         TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 3, TABLE_MAX_Y + 6, -2).times(Mat4.scale(1.3, 3, 1.3)), TUBE_MATERIAL);
-        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 21.7, TABLE_MAX_Y + 10, -2).times(Mat4.scale(20, 1.3, 1.3)), TUBE_MATERIAL);
+        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 21.7, TABLE_MAX_Y + 10.3, -2).times(Mat4.scale(20, 1.3, 1.3)), TUBE_MATERIAL);
     }
 }
