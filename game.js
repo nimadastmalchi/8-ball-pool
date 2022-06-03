@@ -53,6 +53,8 @@ export class Game {
         this.first_turn = true;
         this.solid_ball_pocketed = false;
         this.striped_ball_pockted = false;
+        this.hit_solid_ball_first = false;
+        this.hit_striped_ball_first = false;
         this.finished = false;
         this.place_cue_ball = false;
         this.winner = null;
@@ -64,7 +66,7 @@ export class Game {
     make_odd_layer(y, n) {
         let balls = [];
         let index = 0;
-        if (n === 3) {
+        if (n == 3) {
             this.eight_ball = new Ball(vec3(0, y, 0), vec3(0, 0, 0), new Texture("assets/8.png"), null, false);
             balls.push(this.eight_ball);
         } else {
@@ -195,6 +197,19 @@ export class Game {
                     const SOUND_DIV_FACTOR = 20;
                     let intensity = Math.min(1, (Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist)) / SOUND_DIV_FACTOR);
                     play_collision_sound(intensity);
+
+                    if (this.balls[i] === this.cue_ball && !this.hit_solid_ball_first && !this.hit_striped_ball_first) {
+                        if (this.balls[j].is_solid() === null) {
+                            this.hit_solid_ball_first = true;
+                            this.hit_striped_ball_first = true;
+                        }
+                        else if (this.balls[j].is_solid()) {
+                            this.hit_solid_ball_first = true;
+                        }
+                        else {
+                            this.hit_striped_ball_first = true;
+                        }
+                    }
                 }
             }
         }
@@ -211,7 +226,7 @@ export class Game {
             if (!ball.is_tubed()) {
                 continue;
             }
-            if (this.timer <= 0 && ball.get_vel().norm() === 0 && ball.get_loc()[1] < TABLE_MAX_Y) {
+            if (this.timer <= 0 && ball.get_vel().norm() == 0 && ball.get_loc()[1] < TABLE_MAX_Y) {
                 // Ball starts the tubing process.
                 this.timer = 25;
                 ball.set_loc(vec3(TABLE_MIN_X + 3, TABLE_MAX_Y + 5, -2));
@@ -226,7 +241,7 @@ export class Game {
                 ball.set_vel(vec3(TUBE_VEL, 0, 0));
                 let dl = ball.get_vel().times(dt);
                 ball.set_loc(ball.get_loc().plus(dl));
-            } else if (ball.get_vel().norm() !== 0) {
+            } else if (ball.get_vel().norm() != 0) {
                 // Ball has reached its final destination.
                 ball.set_vel(vec3(0, 0, 0));
                 ball.set_loc(vec3(TABLE_MAX_X - 2 * this.num_tubed, TABLE_MAX_Y + 10, -2));
@@ -319,22 +334,36 @@ export class Game {
                 }
 
                 let changed_turns = false;
-                // Check whether a ball has been pocketed:
+                // Check whether a ball has been pocketed or hit:
                 if (this.first_turn) {
                     if (!this.solid_ball_pocketed && !this.striped_ball_pocketed) {
                         changed_turns = true;
                         this.turn ^= 1;
                     }
                 }
-                else if ((this.solid_ball_pocketed && this.turn !== this.solid) ||
-                         (this.striped_ball_pocketed && this.turn === this.solid) ||
-                         (!this.solid_ball_pocketed && !this.striped_ball_pocketed)) {
+                else if (this.solid != null) {
+                    if ((this.hit_solid_ball_first && this.turn != this.solid) ||
+                        (this.hit_striped_ball_first && this.turn == this.solid)) {
+                        changed_turns = true;
+                        this.turn ^= 1;
+                        this.place_cue_ball = true;
+                    }
+                    else if ((this.solid_ball_pocketed && this.turn != this.solid) ||
+                             (this.striped_ball_pocketed && this.turn == this.solid) ||
+                             (!this.solid_ball_pocketed && !this.striped_ball_pocketed)) {
+                        changed_turns = true;
+                        this.turn ^= 1;
+                    }
+                }
+                else if (!this.solid_ball_pocketed && !this.striped_ball_pocketed) {
                     changed_turns = true;
                     this.turn ^= 1;
                 }
 
                 this.solid_ball_pocketed = false;
                 this.striped_ball_pocketed = false;
+                this.hit_solid_ball_first = false;
+                this.hit_striped_ball_first = false;
 
                 // Set new cue ball location:
                 if (!this.cue_ball.is_visible()) {
