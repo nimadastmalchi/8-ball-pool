@@ -289,7 +289,7 @@ export class Game {
                 // The cue stick has hit the cue ball.
                 if (this.first_turn) {
                     // Give more power to the first shot:
-                    vel = vel.times(2);
+                    vel = vel.times(2.2);
                 }
                 this.cue_ball.set_vel(vel);
                 this.stopped = false;
