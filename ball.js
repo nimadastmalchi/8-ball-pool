@@ -7,7 +7,7 @@ const {
 } = tiny;
 
 export class Ball {
-    constructor(init_loc, init_vel, texture, solid) {
+    constructor(init_loc, init_vel, texture, solid, cue_ball) {
         this.loc = init_loc;
         this.vel = init_vel;
         this.solid = solid;
@@ -16,6 +16,7 @@ export class Ball {
         this.visible = true;
         this.rotation_transform = Mat4.rotation(-Math.PI / 2, 0, 1, 0);
         this.tubed = false;
+        this.cue_ball = cue_ball;
     }
 
     get_loc() {
@@ -75,7 +76,7 @@ export class Ball {
             if (this.loc[2] < -2) {
                 // Ball has finished sliding into the pocket.
                 this.set_vel(vec3(0, 0, 0));
-                if (this.solid != null && this.visible) {
+                if (!this.cue_ball && this.visible) {
                     this.tubed = true;
                 }
                 this.visible = false;

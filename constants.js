@@ -32,5 +32,5 @@ export const TABLE_MAX_Y = 40;
 export const POCKET_LOCS = [ vec3(-20, 0, 0), vec3(20, 0, 0), vec3(-19, 39, 0), vec3(-19, -39, 0), vec3(19, 39, 0), vec(19, -39, 0) ]
 
 export const TUBE_VEL = 20;
-export const TUBE_SHAPE = new defs.Cylindrical_Tube(500, 500, [[0, 1], [0, 1]]);
+export const TUBE_SHAPE = new defs.Cube();
 export const TUBE_MATERIAL = new Material(new defs.Phong_Shader(), { ambient: 1, diffusivity: 1, specularity: 1, color: [1, 1, 1, 0.1] });

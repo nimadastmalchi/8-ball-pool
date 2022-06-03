@@ -41,7 +41,7 @@ export class Game {
         this.balls = this.balls.concat(this.make_even_layer(y_loc + 6, 4));
         this.balls = this.balls.concat(this.make_odd_layer(y_loc + 8, 5));
 
-        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), new Texture("assets/0.png"), null);
+        this.cue_ball = new Ball(vec3(0, -20, 0), vec3(0, 0, 0), new Texture("assets/0.png"), null, true);
         this.balls.push(this.cue_ball);
 
         this.cue_stick = new Cue_Stick(vec3(0, -20, 0));
@@ -64,11 +64,11 @@ export class Game {
         let balls = [];
         let index = 0;
         if (n === 3) {
-            this.eight_ball = new Ball(vec3(0, y, 0), vec3(0, 0, 0), new Texture("assets/8.png"), null);
+            this.eight_ball = new Ball(vec3(0, y, 0), vec3(0, 0, 0), new Texture("assets/8.png"), null, false);
             balls.push(this.eight_ball);
         } else {
             index = Math.floor(Math.random() * this.textures.length);
-            balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            balls.push(new Ball(vec3(0, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index], false));
             this.textures.splice(index, 1);
             this.solids.splice(index, 1);
         }
@@ -78,7 +78,7 @@ export class Game {
         let i = 1;
         while (num_on_left > 0) {
             index = Math.floor(Math.random() * this.textures.length);
-            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            balls.push(new Ball(vec3(- (2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index], false));
             this.textures.splice(index, 1);
             this.solids.splice(index, 1);
             --num_on_left;
@@ -88,7 +88,7 @@ export class Game {
         i = 1;
         while (num_on_right > 0) {
             index = Math.floor(Math.random() * this.textures.length);
-            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index]));
+            balls.push(new Ball(vec3((2 * BALL_RADIUS + BALL_INIT_SPACE) * i++, y, 0), vec3(0, 0, 0), this.textures[index], this.solids[index], false));
             this.textures.splice(index, 1);
             this.solids.splice(index, 1);
             --num_on_right;
@@ -139,7 +139,7 @@ export class Game {
     }
 
     update(dt) {
-        --this.timer;
+        this.timer = Math.max(this.timer - 1, 0);
         const TUBE_VEL = 20;
         for (const ball of this.balls) {
             if (!ball.is_tubed()) {
@@ -148,7 +148,7 @@ export class Game {
             if (this.timer <= 0 && ball.get_vel().norm() === 0 && ball.get_loc()[1] < TABLE_MAX_Y) {
                 // Ball starts the tubing process.
                 this.timer = 20;
-                ball.set_loc(vec3(TABLE_MIN_X + 3, TABLE_MAX_Y + 5, -5));
+                ball.set_loc(vec3(TABLE_MIN_X + 3, TABLE_MAX_Y + 5, -2));
                 ball.set_vel(vec3(0, TUBE_VEL, 0));
             }
             else if (ball.get_loc()[1] <= TABLE_MAX_Y + 10) {
@@ -344,8 +344,8 @@ export class Game {
     draw(context, program_state) {
         TABLE_SHAPE.draw(context, program_state, Mat4.translation(0, 0, -2).times(Mat4.scale(TABLE_MAX_X, TABLE_MAX_Y, 1)), TABLE_MATERIAL);
         for (const ball of this.balls) {
-            if (!ball.is_visible() && (ball === this.cue_ball || ball === this.eight_ball)) {
-                // Cue and eight balls are not tubed, so don't draw them.
+            if (!ball.is_visible() && (ball === this.cue_ball)) {
+                // Cue ball is not tubed, so don't draw it
                 continue;
             }
             ball.draw(context, program_state);
@@ -355,7 +355,7 @@ export class Game {
             this.cue_stick.draw(context, program_state, STICK_MATERIAL);
         }
         this.make_railings(context, program_state);
-        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 3, TABLE_MAX_Y + 7, -5).times(Mat4.rotation(Math.PI / 2, 1, 0, 0)).times(Mat4.scale(2, 2, 9)), TUBE_MATERIAL);
-        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 22, TABLE_MAX_Y + 10, -5).times(Mat4.rotation(Math.PI / 2, 0, 1, 0)).times(Mat4.scale(2, 2, 40)), TUBE_MATERIAL);
+        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 3, TABLE_MAX_Y + 6, -2).times(Mat4.scale(1.3, 3, 1.3)), TUBE_MATERIAL);
+        TUBE_SHAPE.draw(context, program_state, Mat4.translation(TABLE_MIN_X + 21.7, TABLE_MAX_Y + 10, -2).times(Mat4.scale(20, 1.3, 1.3)), TUBE_MATERIAL);
     }
 }
