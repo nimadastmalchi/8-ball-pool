@@ -12,8 +12,9 @@
 <!-- Begin typing your web page here. -->
 <!-- The following code embeds a WebGL canvas panel, loads certain scene(s), and displays panel(s) of their controls.-->
 <p style="margin-left:10px;font-family:helvetica;font-size:20px">
-    Turn: Player <span id="turn"></span><br>
-    Solid: Player <span id="solid"></span>
+    Turn: <span id="turn"></span><br>
+    Target Balls: <span id="target"></span><br>
+    Winner: <span id="winner"></span>
 </p>
 <div class="canvas-widget" id="main-canvas"></div>
 <script type=module>
@@ -27,11 +28,20 @@
     new Canvas_Widget(element_to_replace, scenes, { show_explanation: false, make_code_nav: false });
 
     let variables = setInterval(() => {
-        document.getElementById('turn').innerHTML = scenes[0].game.turn;
+        document.getElementById('turn').innerHTML = `Player ${scenes[0].game.turn + 1}`;
         if (scenes[0].game.solid != null) {
-            document.getElementById('solid').innerHTML = scenes[0].game.solid;
+            if (scenes[0].game.solid == scenes[0].game.turn) {
+                document.getElementById('target').innerHTML = 'Solids';    
+            } else {
+                document.getElementById('target').innerHTML = 'Stripes';
+            }
         } else {
-            document.getElementById('solid').innerHTML = 'TBD';
+            document.getElementById('target').innerHTML = 'TBD';
+        }
+        if (scenes[0].game.winner != null) {
+            document.getElementById('winner').innerHTML = `Player ${scenes[0].game.winner + 1}`;
+        } else {
+            document.getElementById('winner').innerHTML = 'TBD';
         }
     }, 100);
 </script>

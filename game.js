@@ -121,10 +121,7 @@ export class Game {
 
     get_cam_matrix() {
         let default_cam_loc = Mat4.rotation(-Math.PI / 2, 0, 0, 1).times(Mat4.look_at(vec3(0, 0, 75), vec3(0, 0, 0), vec3(0, 1, 1)));
-        if (!Keyboard_State.fpv || this.place_cue_ball) {
-            return default_cam_loc;
-        }
-        if (!this.stopped) {
+        if (!Keyboard_State.fpv || this.place_cue_ball || !this.stopped || this.finished) {
             return default_cam_loc;
         }
         return this.cue_stick.get_cam_matrix();
@@ -137,6 +134,71 @@ export class Game {
             }
         }
         return true;
+    }
+
+    all_balls_pocketed() {
+        for (let ball of this.balls) {
+            if (ball.is_solid() === null) {
+                continue;
+            }
+            if (ball.is_solid() && this.turn == this.solid && ball.get_pocket() === null) {
+                return false;
+            }
+            if (!ball.is_solid() && this.turn != this.solid && ball.get_pocket() === null) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    cue_ball_collides() {
+        for (let ball of this.balls) {
+            if (ball === this.cue_ball) {
+                continue;
+            }
+            let loc1 = this.cue_ball.get_loc();
+            let loc2 = ball.get_loc();
+            let dist_vec = loc1.minus(loc2);
+            let dist = dist_vec.norm();
+            if (dist <= 2 * BALL_RADIUS) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    apply_collsion() {
+        let ret_val = false;
+        for (let i = 0; i < this.balls.length; ++i) {
+            if (this.balls[i].get_pocket() != null) {
+                continue;
+            }
+            for (let j = i + 1; j < this.balls.length; ++j) {
+                ret_val = true;
+
+                let loc1 = this.balls[i].get_loc();
+                let loc2 = this.balls[j].get_loc();
+                let dist_vec = loc1.minus(loc2);
+                let dist = dist_vec.norm();
+                if (dist <= 2 * BALL_RADIUS) {
+                    let revert = dist_vec.times((2 * BALL_RADIUS - dist) / dist);
+                    this.balls[i].set_loc(loc1.plus(revert.times(1 / 2)));
+                    this.balls[j].set_loc(loc2.minus(revert.times(1 / 2)));
+
+                    let old_vel1 = this.balls[i].get_vel();
+                    let old_vel2 = this.balls[j].get_vel();
+
+                    this.balls[i].set_vel(old_vel1.minus(loc1.minus(loc2).times(old_vel1.minus(old_vel2).dot(loc1.minus(loc2)) / dist ** 2)).times(COLLISION_VEL_LOSS));
+                    this.balls[j].set_vel(old_vel2.minus(loc2.minus(loc1).times(old_vel2.minus(old_vel1).dot(loc2.minus(loc1)) / dist ** 2)).times(COLLISION_VEL_LOSS)); 
+
+                    // Play sound:
+                    const SOUND_DIV_FACTOR = 20;
+                    let intensity = Math.min(1, (Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist)) / SOUND_DIV_FACTOR);
+                    play_collision_sound(intensity);
+                }
+            }
+        }
+        return ret_val;
     }
 
     update(dt) {
@@ -301,71 +363,6 @@ export class Game {
         }
     }
 
-    all_balls_pocketed() {
-        for (let ball of this.balls) {
-            if (ball.is_solid() === null) {
-                continue;
-            }
-            if (ball.is_solid() && this.turn == this.solid && ball.get_pocket() === null) {
-                return false;
-            }
-            if (!ball.is_solid() && this.turn != this.solid && ball.get_pocket() === null) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    cue_ball_collides() {
-        for (let ball of this.balls) {
-            if (ball === this.cue_ball) {
-                continue;
-            }
-            let loc1 = this.cue_ball.get_loc();
-            let loc2 = ball.get_loc();
-            let dist_vec = loc1.minus(loc2);
-            let dist = dist_vec.norm();
-            if (dist <= 2 * BALL_RADIUS) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    apply_collsion() {
-        let ret_val = false;
-        for (let i = 0; i < this.balls.length; ++i) {
-            if (this.balls[i].get_pocket() != null) {
-                continue;
-            }
-            for (let j = i + 1; j < this.balls.length; ++j) {
-                ret_val = true;
-
-                let loc1 = this.balls[i].get_loc();
-                let loc2 = this.balls[j].get_loc();
-                let dist_vec = loc1.minus(loc2);
-                let dist = dist_vec.norm();
-                if (dist <= 2 * BALL_RADIUS) {
-                    let revert = dist_vec.times((2 * BALL_RADIUS - dist) / dist);
-                    this.balls[i].set_loc(loc1.plus(revert.times(1 / 2)));
-                    this.balls[j].set_loc(loc2.minus(revert.times(1 / 2)));
-
-                    let old_vel1 = this.balls[i].get_vel();
-                    let old_vel2 = this.balls[j].get_vel();
-
-                    this.balls[i].set_vel(old_vel1.minus(loc1.minus(loc2).times(old_vel1.minus(old_vel2).dot(loc1.minus(loc2)) / dist ** 2)).times(COLLISION_VEL_LOSS));
-                    this.balls[j].set_vel(old_vel2.minus(loc2.minus(loc1).times(old_vel2.minus(old_vel1).dot(loc2.minus(loc1)) / dist ** 2)).times(COLLISION_VEL_LOSS)); 
-
-                    // Play sound:
-                    const SOUND_DIV_FACTOR = 20;
-                    let intensity = Math.min(1, (Math.abs(old_vel1.dot(dist_vec) / dist) + Math.abs(old_vel2.dot(dist_vec) / dist)) / SOUND_DIV_FACTOR);
-                    play_collision_sound(intensity);
-                }
-            }
-        }
-        return ret_val;
-    }
-
     draw(context, program_state) {
         TABLE_SHAPE.draw(context, program_state, Mat4.translation(0, 0, -2).times(Mat4.scale(TABLE_MAX_X, TABLE_MAX_Y, 1)), TABLE_MATERIAL);
         for (let ball of this.balls) {
@@ -376,7 +373,7 @@ export class Game {
             ball.draw(context, program_state);
         }
 
-        if (this.stopped && !this.place_cue_ball) {
+        if (this.stopped && !this.place_cue_ball && !this.finished) {
             this.cue_stick.draw(context, program_state, STICK_MATERIAL);
         }
         this.make_railings(context, program_state);
