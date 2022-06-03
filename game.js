@@ -55,6 +55,7 @@ export class Game {
         this.striped_ball_pockted = false;
         this.finished = false;
         this.place_cue_ball = false;
+        this.winner = null;
 
         this.num_tubed = 0;
         this.timer = 0;
@@ -130,8 +131,8 @@ export class Game {
     }
 
     all_balls_stopped() {
-        for (let i = 0; i < this.balls.length; ++i) {
-            if (!this.balls[i].is_stopped()) {
+        for (let ball of this.balls) {
+            if (!ball.is_stopped()) {
                 return false;
             }
         }
@@ -139,9 +140,12 @@ export class Game {
     }
 
     update(dt) {
+        if (this.finished) {
+            return;
+        }
         this.timer = Math.max(this.timer - 1, 0);
         const TUBE_VEL = 20;
-        for (const ball of this.balls) {
+        for (let ball of this.balls) {
             if (!ball.is_tubed()) {
                 continue;
             }
@@ -216,25 +220,25 @@ export class Game {
         else {
             // Balls are moving.
             this.apply_collsion();
-            for (let i = 0; i < this.balls.length; ++i) {
-                this.balls[i].update_loc(dt);
+            for (let ball of this.balls) {
+                ball.update_loc(dt);
             }
-            for (let i = 0; i < this.balls.length; ++i) {
-                if (this.balls[i].is_visible() && this.balls[i].get_pocket() != null) {
+            for (let ball of this.balls) {
+                if (ball.is_visible() && ball.get_pocket() != null) {
                     // Ball was just pocketed.
-                    if (this.balls[i] === this.cue_ball) {
+                    if (ball === this.cue_ball) {
                         // Ignore the cue ball.
                         continue;
                     }
                     // If roles still need to be assigned:
-                    if (!this.first_turn && this.solid == null) {
-                        this.solid = this.balls[i].is_solid() ? this.turn : this.turn ^ 1;
+                    if (!this.first_turn && this.solid === null) {
+                        this.solid = ball.is_solid() ? this.turn : this.turn ^ 1;
                     }
                     // Indicate which type of ball has been pocketed:
-                    if (this.balls[i].is_solid() == null) {
-                        this.finished = true;
+                    if (ball.is_solid() === null) {
+                        this.winner = this.all_balls_pocketed() ? this.turn : this.turn ^ 1;
                     }
-                    else if (this.balls[i].is_solid()) {
+                    else if (ball.is_solid()) {
                         this.solid_ball_pocketed = true;
                     }
                     else {
@@ -245,6 +249,11 @@ export class Game {
             if (this.all_balls_stopped()) {
                 // Balls just stopped.
                 this.stopped = true;
+
+                if (this.winner != null) {
+                    this.finished = true;
+                    return;
+                }
 
                 let changed_turns = false;
                 // Check whether a ball has been pocketed:
@@ -291,8 +300,23 @@ export class Game {
         }
     }
 
+    all_balls_pocketed() {
+        for (let ball of this.balls) {
+            if (ball.is_solid() === null) {
+                continue;
+            }
+            if (ball.is_solid() && this.turn == this.solid && ball.get_pocket() === null) {
+                return false;
+            }
+            if (!ball.is_solid() && this.turn != this.solid && ball.get_pocket() === null) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
     cue_ball_collides() {
-        for (const ball of this.balls) {
+        for (let ball of this.balls) {
             if (ball === this.cue_ball) {
                 continue;
             }
@@ -343,7 +367,7 @@ export class Game {
 
     draw(context, program_state) {
         TABLE_SHAPE.draw(context, program_state, Mat4.translation(0, 0, -2).times(Mat4.scale(TABLE_MAX_X, TABLE_MAX_Y, 1)), TABLE_MATERIAL);
-        for (const ball of this.balls) {
+        for (let ball of this.balls) {
             if (!ball.is_visible() && (ball === this.cue_ball)) {
                 // Cue ball is not tubed, so don't draw it
                 continue;
