@@ -21,7 +21,7 @@ export class Keyboard_State {
 
 export function play_collision_sound(intensity) {
     let sound = new Audio('./assets/ball-hit.mp3');
-    sound.volume = intensity;
+    sound.volume = intensity / 2;
     sound.play();
 }
 
