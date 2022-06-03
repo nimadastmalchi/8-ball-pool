@@ -151,7 +151,7 @@ export class Game {
             }
             if (this.timer <= 0 && ball.get_vel().norm() === 0 && ball.get_loc()[1] < TABLE_MAX_Y) {
                 // Ball starts the tubing process.
-                this.timer = 20;
+                this.timer = 25;
                 ball.set_loc(vec3(TABLE_MIN_X + 3, TABLE_MAX_Y + 5, -2));
                 ball.set_vel(vec3(0, TUBE_VEL, 0));
             }
@@ -167,6 +167,7 @@ export class Game {
             } else if (ball.get_vel().norm() !== 0) {
                 // Ball has reached its final destination.
                 ball.set_vel(vec3(0, 0, 0));
+                ball.set_loc(vec3(TABLE_MAX_X - 2 * this.num_tubed, TABLE_MAX_Y + 10, -2));
                 this.num_tubed += 1;
             }
         }
