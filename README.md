@@ -1,5 +1,7 @@
 # 8-Ball Pool
 
+<img width="835" alt="image" src="https://github.com/nimadastmalchi/8-ball-pool/assets/60092567/eeece2e7-0940-4289-9187-6dcfacb7618c">
+
 ## Launching the Game
 
 First, download the latest version of [Python](https://www.python.org/downloads/) if it is not already installed. Then, execute the following command from the root directory of the unzipped ZIP file.
